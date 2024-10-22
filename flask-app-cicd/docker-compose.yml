@@ -5,8 +5,3 @@ services:
     build: .
     ports:
       - "5000"
-    networks:
-      - app_net
-
-networks:
-  app_net:
