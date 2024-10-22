@@ -1,0 +1,15 @@
+version: '3.0.0'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000" # Пробрасываем порт Flask-приложения
+    depends_on:
+      - redis # Указываем, что веб-сервис зависит от Redis
+    environment:
+      - REDIS_HOST=redis # Настраиваем переменную окружения для Redis
+  redis:
+    image: "redis:alpine" # Используем образ Redis
+    ports:
+      - "6379:6379" # Пробрасываем порт Redis

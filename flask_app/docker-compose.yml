@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000" # Пробрасываем порт Flask-приложения
+    depends_on:
+      - db # Говорим, что контейнер web должен запускаться после db
+  db:
+    image: postgres:13 # Используем образ PostgreSQL версии 13
+    environment:
+      POSTGRES_USER: user # Логин для подключения к базе данных
+      POSTGRES_PASSWORD: password # Пароль для пользователя
+      POSTGRES_DB: flask_db # Название базы данных
+    ports:
+      - "5432:5432" # Пробрасываем порт PostgreSQL
+  redis:
+    image: "redis:alpine" # Используем образ Redis
+    ports:
+      - "6379:6379" # Пробрасываем порт Redis
