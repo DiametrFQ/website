@@ -34,10 +34,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOSTING_SERVER }}
-          username: ${{ secrets.HOSTING_USERNAME }}
+          username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
-            docker stop flask-app
-            docker rm flask-app
-            docker run -d --name flask-app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+            whoami
