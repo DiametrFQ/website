@@ -42,4 +42,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
             docker stop flask-app
             docker rm flask-app
-            docker run -d --name flask-app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app
+            docker run -d --name flask-app -p 80:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app
