@@ -1,0 +1,37 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - master # Запускать при коммите в ветку master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app .
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Tests
+        run: |
+          docker run ${{ secrets.DOCKER_USERNAME }}/flask-app pytest
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTING_NAME }}@${{ secrets.SERVER }} "docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest && docker-compose up -d"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
