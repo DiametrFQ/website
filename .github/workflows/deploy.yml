@@ -37,6 +37,8 @@ jobs:
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
+            apt-get update
+            apt-get install -y docker.io
             docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app
             docker stop flask-app
             docker rm flask-app
