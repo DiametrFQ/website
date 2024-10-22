@@ -31,7 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTING_NAME }}@${{ secrets.HOSTING_SERVER }} "docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest && docker-compose up -d"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.HOSTING_PASSWORD }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOSTING_SERVER }}
+          username: ${{ secrets.HOSTING_USERNAME }}
+          password: ${{ secrets.HOSTING_PASSWORD }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+            docker stop flask-app
+            docker rm flask-app
+            docker run -d --name flask-app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
