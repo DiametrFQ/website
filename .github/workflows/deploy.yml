@@ -25,13 +25,13 @@ jobs:
     steps:
       - name: Run Tests
         run: |
-          docker run ${{ secrets.DOCKER_USERNAME }}/flask-app pytest
+          docker compose -f docker-compose.test.yml up 
 
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTING_NAME }}@${{ secrets.SERVER }} "docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest && docker-compose up -d"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTING_NAME }}@${{ secrets.HOSTING_SERVER }} "docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest && docker-compose up -d"
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.HOSTING_PASSWORD }}
