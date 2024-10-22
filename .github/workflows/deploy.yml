@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Run Tests
         run: |
-          docker compose -f docker-compose.test.yml up 
+          docker run ${{ secrets.DOCKER_USERNAME }}/flask-app pytest
 
   deploy:
     runs-on: ubuntu-latest
@@ -37,4 +37,7 @@ jobs:
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
-            whoami
+            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app
+            docker stop flask-app
+            docker rm flask-app
+            docker run -d --name flask-app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app
