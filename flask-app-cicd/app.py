@@ -5,7 +5,7 @@ app = Flask(__name__)
 # Маршрут для главной страницы
 @app.route('/')
 def home():
-    return '<img src="https://media.giphy.com/media/3ohzdICpCk5DZCp4iC/giphy.gif" alt="Flask logo">'
+    return '<img src="https://img.freepik.com/free-photo/view-adorable-persian-domestic-cat_23-2151773871.jpg" alt="Flask logo">'
 
 # Маршрут для страницы данных
 @app.route('/data')
