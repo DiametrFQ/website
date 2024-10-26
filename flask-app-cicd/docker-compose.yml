@@ -20,6 +20,11 @@ services:
       - web # Nginx зависит от Flask-приложения
     networks:
       - app_net
-
+      
+  certbot:
+    image: certbot/certbot
+    volumes:
+    - /etc/letsencrypt:/etc/letsencrypt
+    - /var/www/certbot:/var/www/certbot
 networks:
   app_net:
