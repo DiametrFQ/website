@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,7 +20,7 @@ jobs:
       - name: Tear down
         run: docker-compose -f docker-compose.yml down
 
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
