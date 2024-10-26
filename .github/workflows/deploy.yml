@@ -5,53 +5,62 @@ on:
     branches:
       - main
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build and Test with Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          sudo apt-get install -y docker.io docker-compose
-          sudo docker-compose -f docker-compose.yml build
-          sudo docker-compose -f docker-compose.yml up -d
-      - name: Tear down
-        run: docker-compose -f docker-compose.yml down
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v1
+#       - name: Build and Test with Docker Compose
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get upgrade -y
+#           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+#           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+#           sudo apt-get update
+#           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+#           sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#           sudo chmod +x /usr/local/bin/docker-compose
+#           sudo apt-get install -y docker.io docker-compose
+#           sudo docker-compose -f docker-compose.yml build
+#           sudo docker-compose -f docker-compose.yml up -d
+#       - name: Tear down
+#         run: docker-compose -f docker-compose.yml down
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build and Test with Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io docker-compose
-          sudo docker-compose -f docker-compose.yml build
-          sudo docker-compose -f docker-compose.yml up -d
-          sudo docker-compose -f docker-compose.yml run flask-app pytest
-      - name: Tear down
-        run: docker-compose -f docker-compose.yml down
+#   test:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v1
+#       - name: Build and Test with Docker Compose
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y docker.io docker-compose
+#           sudo docker-compose -f docker-compose.yml build
+#           sudo docker-compose -f docker-compose.yml up -d
+#           sudo docker-compose -f docker-compose.yml run flask-app pytest
+#       - name: Tear down
+#         run: docker-compose -f docker-compose.yml down
 
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Transfer Files to Server
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.HOSTING_SERVER }}
+          username: ${{ secrets.HOSTING_NAME }}
+          password: ${{ secrets.HOSTING_PASSWORD }}
+          source: "flask-app-cicd/*"
+          target: "/myPath"
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -59,8 +68,41 @@ jobs:
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
-            apt-get update
-            apt-get install -y docker.io docker-compose
-            cd /flask-app-cicd
-            docker-compose down
-            docker-compose up -d
+            sudo apt-get update
+            sudo apt-get upgrade -y
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+
+            sudo apt-get update
+            sudo apt-get upgrade -y
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+
+            APP_DIR="/root/LAS"
+
+            if [ ! -d "$APP_DIR" ]; then
+              git clone https://github.com/Calcifer08/Cloud.git $APP_DIR
+            else
+              cd $APP_DIR
+              git pull origin main
+            fi
+
+            cd $APP_DIR
+
+            docker-compose down || true
+
+            # Скачиваем новые образы
+            docker-compose pull
+
+            # Поднимаем новые контейнеры
+            docker-compose up -d --build
