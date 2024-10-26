@@ -67,3 +67,7 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
+          script: |
+            docker-compose down || true
+            docker-compose pull
+            docker-compose up -d --build
