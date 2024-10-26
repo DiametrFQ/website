@@ -1,7 +1,5 @@
 # Базовый образ с Python
 FROM python:3.9-alpine
-# Устанавливаем рабочую директорию
-WORKDIR /app
 # Копируем файл зависимостей
 COPY requirements.txt requirements.txt
 # Устанавливаем зависимости
