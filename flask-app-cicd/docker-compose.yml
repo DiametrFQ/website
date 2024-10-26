@@ -4,8 +4,7 @@ services:
   web:
     build: .
     ports:
-      - "80:5000"
-      - "443`:5000"
+      -"5000"
     networks:
       - app_net
 
@@ -14,7 +13,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt:/etc/letsencrypt
-      - /var/www/certbot:/var/www/certbot
+      - ./certbot:/var/www/certbot
     ports:
       - "80:80"
       - "443:443"
@@ -22,7 +21,6 @@ services:
       - web
     networks:
       - app_net
-
 
   certbot:
     image: certbot/certbot
