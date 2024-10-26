@@ -15,10 +15,10 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build and Test with Docker Compose
         run: |
-          apt-get update
-          apt-get install -y docker.io docker-compose
-          docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml up -d
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
+          sudo docker-compose -f docker-compose.yml build
+          sudo docker-compose -f docker-compose.yml up -d
       - name: Tear down
         run: docker-compose -f docker-compose.yml down
 
@@ -31,11 +31,11 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build and Test with Docker Compose
         run: |
-          apt-get update
-          apt-get install -y docker.io docker-compose
-          docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml up -d
-          docker-compose -f docker-compose.yml run flask-app pytest
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
+          sudo docker-compose -f docker-compose.yml build
+          sudo docker-compose -f docker-compose.yml up -d
+          sudo docker-compose -f docker-compose.yml run flask-app pytest
       - name: Tear down
         run: docker-compose -f docker-compose.yml down
 
