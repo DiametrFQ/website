@@ -99,9 +99,6 @@ jobs:
             echo sudo chmod +x /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Run
-        with:
-          script: |
             APP_DIR="/myPath"
 
             cd $APP_DIR/flask-app-cicd
