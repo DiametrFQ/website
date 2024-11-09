@@ -2,9 +2,7 @@ services:
   web:
     image: diametrfq/fast-app-prometheus-web
     ports:
-      - "5000:5000"
-    networks:
-      - fast-app-prometheus
+      - "5000"
     deploy:
       replicas: 4
     logging:
@@ -13,19 +11,24 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
   prometheus:
     image: prom/prometheus
-    networks:
-      - fast-app-prometheus
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.ymld
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana
-    networks:
-      - fast-app-prometheus
     ports:
       - "3001:3000"
     environment:
@@ -35,8 +38,6 @@ services:
 
   elasticsearch:
     image: elasticsearch:7.9.3
-    networks:
-      - fast-app-prometheus
     environment:
       - discovery.type=single-node
     ports:
@@ -46,8 +47,6 @@ services:
 
   logstash:
     image: logstash:7.9.3
-    networks:
-      - fast-app-prometheus
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
@@ -62,7 +61,3 @@ services:
 
 volumes:
   esdata:
-
-networks:
-  fast-app-prometheus:
-    external: true
