@@ -71,9 +71,6 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-
-      - name: Install dependencies
-        with:
           script: |
             echo sudo apt-get update
             sudo apt-get update
