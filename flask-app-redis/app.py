@@ -15,22 +15,24 @@ app.config['CACHE_REDIS_URL'] = f"redis://{app.config['CACHE_REDIS_HOST']}:{app.
 # Инициализация кэша
 cache = Cache(app)
 
-# Пример маршрута с кэшированием
 @app.route('/data')
-@cache.cached(timeout=60) # Данные будут кэшироваться на 60 секунд
+@cache.cached(timeout=60) 
 def get_data():
-    # Эмуляция долгого запроса (например, к базе данных)
     time.sleep(10)
     return jsonify({'data': 'This is some data!'})
+
+@app.route('/data2')
+@cache.cached(timeout=60) 
+def get_data():
+    time.sleep(10)
+    return jsonify({'data': 'This is some data2!'})
 
 @app.route('/user/<int:id>')
 @cache.cached(timeout=120, key_prefix='user_data')
 def get_user(id):
-    # Здесь мог бы быть запрос к базе данных
     user_data = {'id': id, 'name': f'User {id}'}
     return jsonify(user_data)
     
-# Очистка кэша для определенного пользователя
 @app.route('/clear_cache/<int:id>')
 def clear_user_cache(id):
     cache.delete(f'user_data::{id}')
