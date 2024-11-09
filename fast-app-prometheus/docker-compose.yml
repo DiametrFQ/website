@@ -5,11 +5,8 @@ services:
       - "5000:5000"
     networks:
       - fast-app-prometheus
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:80/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+    deploy:
+      replicas: 4
     logging:
       driver: "json-file"
       options:
@@ -23,7 +20,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.ymld
 
   grafana:
     image: grafana/grafana

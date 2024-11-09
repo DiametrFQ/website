@@ -4,7 +4,7 @@ services:
   web:
     build: .
     ports:
-      - "5000:5000" # Пробрасываем порт Flask-приложения
+      - "5001:5000" # Пробрасываем порт Flask-приложения
     depends_on:
       - redis # Указываем, что веб-сервис зависит от Redis
     environment:
