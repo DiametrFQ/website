@@ -39,16 +39,8 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./"
+          source: "./*"
           target: "/myPath"
-
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/docker
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
             
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
@@ -66,6 +58,7 @@ jobs:
             sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
 
+            cd /myPath
             docker-compose down || true
             docker-compose pull
             docker-compose up -d --build
