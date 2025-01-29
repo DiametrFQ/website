@@ -4,7 +4,7 @@ services:
     ports:
       - 3000
     deploy:
-      replicas: 1 # Запускаем 3 экземпляра Flask-приложения
+      replicas: 3
     depends_on:
       - postgres
     networks:
@@ -13,8 +13,10 @@ services:
   nginx:
     image: nginx:latest
     volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
       - ./nginx.conf:/etc/nginx/nginx.conf
     ports:
+      - 443:443
       - 80:80
     depends_on:
       - web
