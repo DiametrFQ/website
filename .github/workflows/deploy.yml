@@ -18,7 +18,6 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/website .
-          docker push ${{ secrets.DOCKER_USERNAME }}/website:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -33,7 +32,7 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "*"
+          source: "/"
           target: "/myPath"
 
       - name: Deploy to Server
