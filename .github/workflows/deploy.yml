@@ -39,7 +39,7 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "*"
+          source: "./"
           target: "/myPath"
 
       - name: Cache Docker layers
