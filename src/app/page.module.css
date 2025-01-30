@@ -14,6 +14,8 @@
   padding: 80px;
   gap: 64px;
   font-family: var(--font-geist-sans);
+
+  transition: left 0.3s ease-in-out;
 }
 
 @media (prefers-color-scheme: dark) {
