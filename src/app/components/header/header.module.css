@@ -1,0 +1,15 @@
+/* src/styles/Header.module.css */
+
+.header {
+  background-color: #000000; /* Цвет фона, похожий на Telegram */
+  padding: 20px;
+  display: flex;
+  color: white;
+}
+
+.logo {
+  font-size: 2rem; /* Размер шрифта */
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px; /* Расстояние между буквами */
+}
