@@ -15,13 +15,6 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/docker
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/website .
@@ -62,3 +55,4 @@ jobs:
             docker-compose down || true
             docker-compose pull
             docker-compose up -d --build
+            docker system prune
