@@ -2,7 +2,7 @@
 
 .header {
   background-color: var(--background);; /* Цвет фона, похожий на Telegram */
-  padding: 20px 0;
+  padding: 20px;
   display: flex;
   color: var(--foreground)
 }

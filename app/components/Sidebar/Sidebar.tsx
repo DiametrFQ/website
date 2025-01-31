@@ -1,25 +1,68 @@
-import styles from './styles/sidebar.module.css';
+// import styles from './styles/sidebar.module.css';
+import { DropdownMenu, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar7';
+import ToggleSidebarButton from './components/ToggleSidebarButton';
 import './styles/global.css';
-import Link from 'next/link';
 
-interface SidebarProps {
-  isOpen: boolean;
-}
+const items = [
+  {
+    title: 'Главная',
+    url: '/',
+    iconName: 'home',
+  },
+  {
+    title: 'Обо мне',
+    url: '/about',
+    iconName: 'docs',
+  },
+  {
+    title: 'Проекты',
+    url: '/projects',
+    iconName: 'groups',
+  },
+  {
+    title: 'Контакты',
+    url: '/contact',
+    iconName: 'groups',
+  },
+  {
+    title: 'Telegram',
+    url: '/telegram',
+    iconName: 'groups',
+  },
+]
 
-const Sidebar = ({ isOpen }: SidebarProps) => {
+const AppSidebar = () => {
   return (
-    <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
-      <nav>
-        <ul>
-          <li><Link href="/">Главная</Link></li>
-          <li><Link href="/about">Обо мне</Link></li>
-          <li><Link href="/projects">Проекты</Link></li>
-          <li><Link href="/contact">Контакты</Link></li>
-          <li><Link href='/telegram'>Telegram</Link></li>
-        </ul>
-      </nav>
-    </aside>
+    <Sidebar variant="floating" >
+      <SidebarHeader>
+        <ToggleSidebarButton/>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <SidebarMenuButton asChild>
+                        <a href={item.url}>
+                          <span className="material-symbols-outlined">{item.iconName}</span>
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </DropdownMenuTrigger>
+                  </DropdownMenu>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 };
 
-export default Sidebar;
+export default AppSidebar;

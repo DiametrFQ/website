@@ -1,23 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { SidebarInset, SidebarProvider } from '../components/ui/sidebar7';
 import Header from './components/Header/Header';
 import Sidebar from './components/Sidebar/Sidebar';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => setIsMenuOpen(() => !isMenuOpen);
-
+    
   return (
     <html lang="ru">
+      <head>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      />
+      </head>
       <body>
-        <Header toggleMenu={toggleMenu} isMenuOpen={isMenuOpen} />
-        <div style={{ display: 'flex' }}>
-          <Sidebar isOpen={isMenuOpen} />
-          <main style={{ flex: 1 }}>{children}</main>
-        </div>
+        <SidebarProvider>
+          <Sidebar/>
+          <SidebarInset>
+            <div>
+              <Header />
+              <main>{children}</main>
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );

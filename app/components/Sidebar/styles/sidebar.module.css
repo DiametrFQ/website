@@ -1,8 +1,7 @@
-.sidebar {
+/* .sidebar {
   position: relative;
   left: -250px;
   width: 250px;
-  height: 100vh;
   background: #222;
   color: white;
   padding: 20px;
@@ -11,5 +10,5 @@
 
 .sidebar.open {
   left: 0;
-}
+} */
 
