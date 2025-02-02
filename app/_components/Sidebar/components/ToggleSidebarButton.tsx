@@ -8,7 +8,7 @@ const ToggleSidebarButton = () => {
   return (
     <div onClick={toggleSidebar} className={style.toggleButton}>
       <SVGImageElement 
-        className='m-auto my-5'
+        className='m-auto my-px'
         src="/burger.svg" 
         alt="☰" 
         width={36} 

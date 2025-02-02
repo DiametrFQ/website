@@ -1,0 +1,17 @@
+{
+    "home":{
+        "title": "home"
+    },
+    "about":{
+        "title": "about"
+    },
+    "portfolio":{
+        "title": "portfolio"
+    },
+    "contact":{
+        "title": "contact"
+    },
+    "telegram":{
+        "title": "telegram"
+    }
+}

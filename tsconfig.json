@@ -25,7 +25,10 @@
       "@hooks/*": ["./hooks/*"],
       "@lib/*": ["./lib/*"],
       "@ui/*": ["./components/ui/*"],
-      "@utils/*": ["./lib/utils/*"],
+      "@locales/*": ["./locales/*"],
+      "@types/*": ["./types/*"],
+      "@public/*": ["./public/*"],
+      "@music/*": ["/music/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

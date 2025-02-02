@@ -1,0 +1,42 @@
+.header {
+  background-color: var(--background);
+  padding: 10px 20px;
+  display: flex;
+  color: var(--foreground);
+  display: flex;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 420px) {
+  .logo {
+    font-size: 18px;
+  }
+}
+
+.menuButton {
+  border-radius: 16px;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  background-color: none;
+  cursor: pointer;
+  background-color: var(--background);
+  transition: margin 700ms;
+}
+
+.options {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
