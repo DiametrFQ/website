@@ -1,4 +1,4 @@
-import TelegramPosts from '@/app/[locale]/telegram/components/TelegramPosts';
+import TelegramPosts from '@/app/telegram/components/TelegramPosts';
 import { Metadata } from 'next';
 import "./styles/globals.css";
 
