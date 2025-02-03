@@ -22,7 +22,8 @@ export default function RootLayout({ children, params }: Props) {
       <head>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
+        //NO CHANGE
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
       />
       </head>
       <body>
