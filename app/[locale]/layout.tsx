@@ -1,12 +1,12 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { locale } from "@/types/i18n";
-import { NextIntlClientProvider } from 'next-intl';
+import { NextIntlClientProvider, useMessages } from 'next-intl';
+import { getMessages } from "next-intl/server";
+import { use } from "react";
 import { SidebarInset, SidebarProvider } from '../../components/ui/sidebar7';
 import Header from '../_components/Header/Header';
 import Sidebar from '../_components/Sidebar/Sidebar';
 import './_styles/globals.css';
-import { use } from "react";
-import { getMessages } from "next-intl/server";
 
 type Props = {
   children: React.ReactNode,
@@ -38,7 +38,7 @@ export default function RootLayout({ children, params }: Props) {
               <SidebarInset>
                 <div>
                   <Header />
-                  <main>{children}</main>
+                  <main className="p-5">{children}</main>
                 </div>
               </SidebarInset>
             </SidebarProvider>

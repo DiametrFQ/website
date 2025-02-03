@@ -16,15 +16,24 @@ const TelegramPosts: React.FC = () => {
   useEffect(() => {
     fetch('/api/telegram')
       .then((res) => res.json())
-      .then((data) => setPosts(data))
+      .then((data) => {
+        if(data.data)
+          setPosts(data.data)
+        else
+          setPosts(data)
+      })
       .catch((err) => console.error('Ошибка загрузки:', err));
   }, []);
 
+  useEffect(() => {
+    console.log({posts})
+  }, [posts]);
+
   return (
-    <div>
+    <div className="dark:invert">
       <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Последние посты из Telegram</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>
-        {posts.map((post, index) => (
+        {Array.isArray(posts) && posts.map((post, index) => (
           <PostList key={index} posts={[post]} />
         ))}
       </ul>

@@ -13,7 +13,7 @@ const PostItem: React.FC<{ post: Post }> = ({ post }) => {
     <div className={styles['post-card']}>
       {post.imageUrl && (
         <div className={styles['post-image']}>
-          <img src={post.imageUrl} alt={post.title} />
+          <Image className="invert-0 dark:invert" src={post.imageUrl} alt={post.title} />
         </div>
       )}
       <h3 className={styles['post-title']}>

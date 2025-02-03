@@ -9,10 +9,9 @@ export default getRequestConfig(async () => {
     const locale = pathname.split('/')[3] as locale || 'en';
 
     if (!locales.includes(locale)) notFound();
-    console.log(locale);
 
     return {
         locale,
-        messages: (await import(`@locales/${locale}.json`)).default
+        messages: (await import(`./_locales/${locale}.json`)).default
     };
 });

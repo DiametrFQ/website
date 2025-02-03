@@ -1,7 +1,7 @@
 import Link from 'next/link.js';
 import styles from './header.module.css';
 import { ThemeSwitcher } from './_comonents/ThemeSwitcher/ThemeSwitcher';
-import { LanguageSwitcher } from './_comonents/LanguageSwitcher/LanguageSwitcher';
+// import { LanguageSwitcher } from './_comonents/LanguageSwitcher/LanguageSwitcher';
 import { MusicButton } from './_comonents/MusicButton/MusicButton';
 
 const Header = () => {
