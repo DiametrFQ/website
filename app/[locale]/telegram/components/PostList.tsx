@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import styles from '../styles/page.module.css';
 import Image from 'next/image';
@@ -14,7 +16,7 @@ const PostItem: React.FC<{ post: Post }> = ({ post }) => {
     <div className={styles['post-card']}>
       {post.imageUrl && (
         <div className={styles['post-image']}>
-          <Image className="invert-0 dark:invert" src={post.imageUrl} alt={post.title} />
+          <Image className="invert-0 dark:invert" src={post.imageUrl} alt={post.title} width={300} height={300}/>
         </div>
       )}
       <h3 className={styles['post-title']}>
