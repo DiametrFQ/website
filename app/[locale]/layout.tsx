@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { locale } from "@/types/i18n";
-import { NextIntlClientProvider, useMessages } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from "next-intl/server";
 import { use } from "react";
 import { SidebarInset, SidebarProvider } from '../../components/ui/sidebar7';
@@ -22,7 +22,7 @@ export default function RootLayout({ children, params }: Props) {
       <head>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
       />
       </head>
       <body>

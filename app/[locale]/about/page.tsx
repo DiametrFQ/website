@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ResumePage() {
   const [showContact, setShowContact] = useState(false);
@@ -27,9 +28,9 @@ export default function ResumePage() {
         <tr>
           <th>      
             <div>
-              <img src="https://www.codewars.com/users/DiametrFQ/badges/small"/><br/>
-              <img src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" alt="GitHub Streak"/><br/>
-              <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=DiametrFQ&layout=donut-vertical" alt="GitHub Lengs"/><br/>
+              <Image src="https://www.codewars.com/users/DiametrFQ/badges/small" alt='Codewars stats'/><br/>
+              <Image src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" alt="GitHub Streak"/><br/>
+              <Image src="https://github-readme-stats.vercel.app/api/top-langs/?username=DiametrFQ&layout=donut-vertical" alt="GitHub Lengs"/><br/>
             </div>
           </th>
         </tr>
@@ -71,13 +72,13 @@ export default function ResumePage() {
         📫 Connect with me:<br/>
         <div className='flex'>
           <a href="https://t.me/diametrfq" target="_blank">
-            <img className='h-10' src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram link"/>
+            <Image className='h-10' src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram link"/>
           </a>
           <a href="https://linkedin.com/in/diametrfq" target="_blank">
-            <img className='h-10' src="https://static-00.iconduck.com/assets.00/linkedin-icon-1024x1024-net2o24e.png" alt="LinkedIn link"/>
+            <Image className='h-10' src="https://static-00.iconduck.com/assets.00/linkedin-icon-1024x1024-net2o24e.png" alt="LinkedIn link"/>
           </a>
           <a href="mailto:hohlov.03@inbox.ru" target="_blank">
-            <img className='h-10' src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_1280.png" alt="email link"/>
+            <Image className='h-10' src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_1280.png" alt="email link"/>
           </a>
         </div>
       </div>

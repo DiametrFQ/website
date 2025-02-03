@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../styles/page.module.css';
+import Image from 'next/image';
 
 interface Post {
   title: string;
