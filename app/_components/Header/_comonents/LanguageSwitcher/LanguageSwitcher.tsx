@@ -2,14 +2,16 @@
 
 import { Button } from "@/components/ui/button"
 import { useLocale } from "next-intl"
-import { useRouter } from "next/navigation"
+import { setLanguage } from "@/store/headerSettings/reducer";
+import { locale } from "@/types/i18n";
+import { useAppDispatch } from "@/store/hooks";
 
 export function LanguageSwitcher() {
+  const dispatch = useAppDispatch()
   const locale = useLocale();
-  const router = useRouter();
 
-  const setLocale = (newLocale: string) => {
-    router.push(`${newLocale}`)
+  const setLocale = (newLocale: locale) => {
+    dispatch(setLanguage(newLocale));
   }
 
   return (
