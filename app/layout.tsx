@@ -1,6 +1,3 @@
-/* eslint-disable @next/next/no-page-custom-font */
-/* eslint-disable @next/next/google-font-display */
-
 "use client"
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -13,6 +10,8 @@ import { useEffect } from "react";
 import Header from './_components/Header/Header';
 import Sidebar from './_components/Sidebar/Sidebar';
 import './_styles/globals.css';
+import { GoogleAnalytics } from '@next/third-parties/google'
+import Script from "next/script.js";
 
 type Props = {
   children: React.ReactNode
@@ -75,11 +74,28 @@ export default function RootLayout({ children }: Props) {
   return (
     <html>
       <head>
-        <link 
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        <Script
+          id="yandex-metrika"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+              m[i].l=1*new Date();
+              for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+              (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+              ym(102356747, "init", {
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true,
+                    webvisor:true
+              });
+            `,
+          }}
         />
       </head>
+      <GoogleAnalytics gaId="G-7VQWEH45FM"/>
       <body>
         <StoreProviderLayout>
           {children}
