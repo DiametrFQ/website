@@ -1,0 +1,19 @@
+{
+    "SidebarNavigation": {
+        "home":{
+            "title": "Home"
+        },
+        "about":{
+            "title": "About me"
+        },
+        "portfolio":{
+            "title": "Portfolio"
+        },
+        "contact":{
+            "title": "Contact"
+        },
+        "telegram":{
+            "title": "Telegram"
+        }
+    }
+}

@@ -25,15 +25,18 @@ export default function ResumePage() {
       </header>
 
       <table align="right">
+            <tbody>
+
         <tr>
-          <th>      
+          <th>       
             <div>
-              <Image src="https://www.codewars.com/users/DiametrFQ/badges/small" alt='Codewars stats'/><br/>
-              <Image src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" alt="GitHub Streak"/><br/>
-              <Image src="https://github-readme-stats.vercel.app/api/top-langs/?username=DiametrFQ&layout=donut-vertical" alt="GitHub Lengs"/><br/>
+              <Image src="https://www.codewars.com/users/DiametrFQ/badges/small" width={100} height={100} alt='Codewars stats'/><br/>
+              <Image src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" width={300} height={300} alt="GitHub Streak"/><br/>
+              <Image src="https://github-readme-stats.vercel.app/api/top-langs/?username=DiametrFQ&layout=donut-vertical" width={300} height={300} alt="GitHub Lengs"/><br/>
             </div>
           </th>
         </tr>
+            </tbody>
       </table>
       
       <section>
@@ -71,7 +74,8 @@ export default function ResumePage() {
       <div>
         📫 Connect with me:<br/>
         <div className='flex'>
-          <a href="https://t.me/diametrfq" target="_blank">
+          NO
+          {/* <a href="https://t.me/diametrfq" target="_blank">
             <Image className='h-10' src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram link"/>
           </a>
           <a href="https://linkedin.com/in/diametrfq" target="_blank">
@@ -79,7 +83,7 @@ export default function ResumePage() {
           </a>
           <a href="mailto:hohlov.03@inbox.ru" target="_blank">
             <Image className='h-10' src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_1280.png" alt="email link"/>
-          </a>
+          </a> */}
         </div>
       </div>
     </div>

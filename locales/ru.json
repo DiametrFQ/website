@@ -1,0 +1,19 @@
+{
+    "SidebarNavigation": {
+        "home":{
+            "title": "Главная"
+        },
+        "about":{
+            "title": "Обо мне"
+        },
+        "portfolio":{
+            "title": "Портфолио"
+        },
+        "contact":{
+            "title": "Контакты"
+        },
+        "telegram":{
+            "title": "Telegram"
+        }
+    }
+}

@@ -16,11 +16,13 @@ const items = [
   { title: 'telegram', url: '/telegram', iconName: 'groups' },
 ]
 
-const AppSidebar = () => {
+export default function AppSidebar() {
   const pathname = usePathname();
-  const t = useTranslations();
   const locale = useLocale();
-
+  // unstable_setRequestLocale(locale);
+  const t = useTranslations('SidebarNavigation');
+  console.log({locale})
+  
   return (
     <Sidebar variant="floating">
       <SidebarHeader>
@@ -31,7 +33,17 @@ const AppSidebar = () => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {items.map((item) =>
+               (
+
+              console.log("locale:", locale), // Для отладки
+               console.log("Sidebar item.title for t:", item.title), // Для отладки
+  console.log("Looking for key:", `${item.title}.title`), // Для отладки 
+  console.log("Looking for key:", t(`${item.title}.title`)), // Для отладки 
+
+
+
+
                 <SidebarMenuItem key={item.title} className='stroke-pink-700'>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -55,5 +67,3 @@ const AppSidebar = () => {
     </Sidebar>
   );
 };
-
-export default AppSidebar;
