@@ -8,8 +8,6 @@ export default createMiddleware({
   localePrefix: 'always' // Попробуйте также 'as-needed' для проверки, если 'always' не работает
 });
 
-console.log("Middleware is running for request:", new Date().toISOString()); 
-
 export const config = {
   // Match only internationalized pathnames
   // Обновленный matcher, который должен быть более надежным:

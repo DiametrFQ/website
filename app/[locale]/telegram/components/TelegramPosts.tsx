@@ -25,10 +25,6 @@ const TelegramPosts: React.FC = () => {
       .catch((err) => console.error('Ошибка загрузки:', err));
   }, []);
 
-  useEffect(() => {
-    console.log({posts})
-  }, [posts]);
-
   return (
     <div className="dark:invert">
       <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Последние посты из Telegram</h2>

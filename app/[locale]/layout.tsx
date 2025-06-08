@@ -1,21 +1,22 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import { ThemeProvider } from "@/components/theme-provider";
 import StoreProvider from "@/store/StoreProvider";
 import { SidebarInset, SidebarProvider } from '@ui/sidebar7';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
-import Header from '../_components/Header/Header'; // Путь изменится из-за [locale]
-import Sidebar from '../_components/Sidebar/Sidebar'; // Путь изменится
-import '../_styles/globals.css'; // Путь изменится
+import Header from '../_components/Header/Header';
+import Sidebar from '../_components/Sidebar/Sidebar'; 
+import '../_styles/globals.css';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import Script from "next/script.js";
 import { locales as appLocales } from '@/types/i18n';
+import "@fontsource/material-symbols-outlined"
 
 type Props = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 };
 
-// Для статической генерации страниц для каждой локали (опционально, но рекомендуется)
 export function generateStaticParams() {
   return appLocales.map((locale) => ({locale}));
 }
@@ -29,6 +30,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+        />
+
         <Script
           id="yandex-metrika"
           strategy="afterInteractive"
