@@ -42,7 +42,7 @@ export default function AppSidebar() {
                       <SidebarMenuButton asChild>
                         <Link
                           href={`/${locale}${item.url}`}
-                          className={pathname === `/${locale}${item.url}` ? 'bg-black dark:bg-white' : ''}
+                            className={pathname === `/${locale}${item.url}` || (item.url === '/' && pathname === `/${locale}`) ? 'bg-accent text-accent-foreground' : ''}
                         >
                           <span className="material-symbols-outlined">{item.iconName}</span>
                           <span>{t(`${item.title}.title`)}</span>

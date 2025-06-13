@@ -1,6 +1,5 @@
 import TelegramPosts from '@/app/[locale]/telegram/components/TelegramPosts';
 import { Metadata } from 'next';
-import "./styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",

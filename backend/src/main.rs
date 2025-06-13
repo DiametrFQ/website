@@ -1,6 +1,8 @@
-use actix_web::{web, App, HttpServer, middleware::Logger};
 use std::io::Result;
 use std::sync::Arc;
+use actix_web::{web, App, HttpServer, middleware::Logger};
+use actix_web_prom::PrometheusMetricsBuilder;
+use prometheus::Registry;
 
 use backend::config::config_services;
 use backend::telegram;
@@ -12,16 +14,21 @@ async fn main() -> Result<()> {
     dotenvy::dotenv().ok();
 
     let server_address = "0.0.0.0";
-    let server_port = 8080; // Выберите порт для Rust бэкенда
+    let server_port = 8080; 
 
     log::info!("Starting server at http://{}:{}", server_address, server_port);
 
     let real_fetcher = Arc::new(telegram::services::RealRssFetcher);
+    
+    let prometheus = PrometheusMetricsBuilder::new("backend")
+        .endpoint("/metrics")
+        .build()
+        .unwrap();
 
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
-            // Добавляем fetcher в состояние приложения
+            .wrap(prometheus.clone()) // Add Prometheus middleware
             .app_data(web::Data::from(real_fetcher.clone())) 
             .configure(config_services)
     })

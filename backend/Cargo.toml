@@ -18,6 +18,8 @@ regex = "1.11.1"
 scraper = "0.23.1"
 async-trait = "0.1.88"
 bytes = "1.10.1"
+actix-web-prom = "0.7"
+prometheus = { version = "0.13", features = ["process"] }
 
 [[test]]
 name = "api_tests"

@@ -70,8 +70,9 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./nginx.prod.conf"
+          source: "./docker-compose.yml,./nginx.prod.conf,./prometheus.yml,./grafana-provisioning"
           target: "/myPath"
+          strip_components: 1
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
@@ -97,6 +98,7 @@ jobs:
             fi
 
             cd /myPath
+            export GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
 
             # Вход в Docker Hub
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin

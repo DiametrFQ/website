@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import PostList from './PostList';
+import styles from '../styles/page.module.css'; // CHANGED: Import styles for the title
 
 // Описание типа для постов
 interface Post {
@@ -12,27 +13,44 @@ interface Post {
 
 const TelegramPosts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/telegram')
-      .then((res) => res.json())
-      .then((data) => {
-        if(data.data)
-          setPosts(data.data)
-        else
-          setPosts(data)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+        return res.json();
       })
-      .catch((err) => console.error('Ошибка загрузки:', err));
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Ошибка загрузки:', err);
+        setError('Не удалось загрузить посты.');
+        setLoading(false);
+      });
   }, []);
 
+  if (loading) {
+    return <div>Загрузка постов...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
-    <div className="dark:invert">
-      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Последние посты из Telegram</h2>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {Array.isArray(posts) && posts.map((post, index) => (
-          <PostList key={index} posts={[post]} />
-        ))}
-      </ul>
+    <div>
+      <h2 className={styles.pageTitle}>Последние посты из Telegram</h2>
+      {posts.length > 0 ? (
+         <PostList posts={posts} />
+      ) : (
+        <p>Постов пока нет.</p>
+      )}
     </div>
   );
 };
