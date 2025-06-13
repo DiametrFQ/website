@@ -49,10 +49,12 @@ jobs:
 
       - name: Build and Push Frontend Docker Image
         run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/website:latest ./frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/website:latest
 
       - name: Build and Push Backend Docker Image
         run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/website-backend:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/website-backend:latest
 
   deploy_to_server:
