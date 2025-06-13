@@ -2,7 +2,6 @@ use std::io::Result;
 use std::sync::Arc;
 use actix_web::{web, App, HttpServer, middleware::Logger};
 use actix_web_prom::PrometheusMetricsBuilder;
-use prometheus::Registry;
 
 use backend::config::config_services;
 use backend::telegram;
