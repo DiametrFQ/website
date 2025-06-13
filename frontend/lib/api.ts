@@ -1,8 +1,8 @@
 export class HttpError extends Error {
   status: number;
-  data: any;
+  data: unknown;
 
-  constructor(status: number, data: any, message?: string) {
+  constructor(status: number, data: unknown, message?: string) {
     super(message || `Request failed with status ${status}`);
     this.name = 'HttpError';
     this.status = status;
@@ -17,7 +17,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface RequestOptions {
   headers?: HeadersInit;
-  body?: BodyInit | Record<string, any>;
+  body?: BodyInit | Record<string, unknown>;
   next?: {
     revalidate?: number | false;
     tags?: string[];
