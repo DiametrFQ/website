@@ -1,19 +1,13 @@
-FROM rust:1-slim as builder
-# Устанавливаем ВСЕ зависимости для компиляции (openssl-dev, build-essential...)
-RUN apt-get install -y libssl-dev build-essential ...
-WORKDIR /app
-COPY Cargo.toml .
-# СКАЧИВАЕМ ЗАВИСИМОСТИ RUST (crates)
-RUN cargo build --release 
-COPY src ./src
-# СОБИРАЕМ КОД
-RUN cargo build --release 
+FROM debian:bookworm-slim
 
-# Этап 2: Запуск
-FROM rust:1-slim
-# Устанавливаем РАНТАЙМ-зависимости (ca-certificates)
-RUN apt-get install -y ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-# Копируем бинарник с прошлого этапа
-COPY --from=builder /app/target/release/backend .
+
+COPY ./target/release/backend .
+RUN chmod +x ./backend
+
+EXPOSE 8080
+ENV RUST_LOG="info"
+
 CMD ["./backend"]
