@@ -49,12 +49,10 @@ jobs:
 
       - name: Build and Push Frontend Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/website:$IMAGE_TAG_SHORT -t ${{ secrets.DOCKER_USERNAME }}/website:latest ./frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/website:latest
 
       - name: Build and Push Backend Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/website-backend:$IMAGE_TAG_SHORT -t ${{ secrets.DOCKER_USERNAME }}/website-backend:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/website-backend:latest
 
   deploy_to_server:
@@ -101,20 +99,14 @@ jobs:
             # Вход в Docker Hub
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-            # Загружаем последние :latest образы (или специфичные теги, если docker-compose.yml настроен на них)
-            # Файл docker-compose.yml, который мы скопировали, должен уже содержать правильные имена образов
-            # например, ВАШ_DOCKER_USERNAME/website:latest
             echo "Pulling latest images..."
             docker-compose -f /myPath/docker-compose.yml pull frontend
             docker-compose -f /myPath/docker-compose.yml pull backend
 
-            # Останавливаем текущие контейнеры (если есть) и запускаем новые с обновленными образами
             echo "Restarting services..."
             docker-compose -f /myPath/docker-compose.yml up -d --remove-orphans
-            # --remove-orphans удалит контейнеры для сервисов, которых больше нет в docker-compose.yml
 
             echo "Deployment successful!"
 
-            # Очистка старых образов (опционально, но рекомендуется)
             echo "Pruning old docker resources..."
             docker system prune -af
