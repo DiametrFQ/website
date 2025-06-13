@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import { ThemeProvider } from "@/components/theme-provider";
 import StoreProvider from "@/store/StoreProvider";
-import { SidebarInset, SidebarProvider } from '@ui/sidebar7';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar7';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
 import Header from '../_components/Header/Header';

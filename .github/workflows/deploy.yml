@@ -6,35 +6,73 @@ on:
       - main
 
 jobs:
-  build:
+  test_and_prebuild:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install Frontend Dependencies and Build
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Build Backend (Release)
+        working-directory: ./backend
+        run: cargo build --release --verbose
+
+  build_and_push_docker:
+    runs-on: ubuntu-latest
+    needs: test_and_prebuild
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      - name: Build Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/website .
 
-  deploy:
+      - name: Build and Push Frontend Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/website:$IMAGE_TAG_SHORT -t ${{ secrets.DOCKER_USERNAME }}/website:latest ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/website:latest
+
+      - name: Build and Push Backend Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/website-backend:$IMAGE_TAG_SHORT -t ${{ secrets.DOCKER_USERNAME }}/website-backend:latest ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/website-backend:latest
+
+  deploy_to_server:
     runs-on: ubuntu-latest
-    needs:
-      - build
+    needs: build_and_push_docker
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
       - name: Transfer Files to Server
-        uses: appleboy/scp-action@v0.1.0
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./*"
+          source: "./docker-compose.yml,./nginx.prod.conf"
           target: "/myPath"
-            
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -42,17 +80,41 @@ jobs:
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
-            sudo apt-get update
-            sudo apt-get upgrade -y
-            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -    
-            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            # Установка Docker и Docker Compose (можно вынести в подготовку сервера)
+            if ! command -v docker &> /dev/null; then
+              echo "Docker не найден, устанавливаем..."
+              sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+              sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
+              sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+              sudo usermod -aG docker ${{ secrets.HOSTING_NAME }}
+            fi
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Docker Compose не найден, устанавливаем..."
+              LATEST_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+              sudo curl -L "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
 
             cd /myPath
-            docker-compose down || true
-            docker-compose pull
-            docker-compose up -d --build
-            docker system prune -f
+
+            # Вход в Docker Hub
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            # Загружаем последние :latest образы (или специфичные теги, если docker-compose.yml настроен на них)
+            # Файл docker-compose.yml, который мы скопировали, должен уже содержать правильные имена образов
+            # например, ВАШ_DOCKER_USERNAME/website:latest
+            echo "Pulling latest images..."
+            docker-compose -f /myPath/docker-compose.yml pull frontend
+            docker-compose -f /myPath/docker-compose.yml pull backend
+
+            # Останавливаем текущие контейнеры (если есть) и запускаем новые с обновленными образами
+            echo "Restarting services..."
+            docker-compose -f /myPath/docker-compose.yml up -d --remove-orphans
+            # --remove-orphans удалит контейнеры для сервисов, которых больше нет в docker-compose.yml
+
+            echo "Deployment successful!"
+
+            # Очистка старых образов (опционально, но рекомендуется)
+            echo "Pruning old docker resources..."
+            docker system prune -af

@@ -6,7 +6,6 @@ const withNextIntl = createNextIntlPlugin('./app/i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  // reactStrictMode: true, // Можно раскомментировать, если нужно
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn4.cdn-telegram.org" },
