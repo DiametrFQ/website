@@ -16,6 +16,8 @@ const items = [
   { title: 'telegram', url: '/telegram', iconName: 'groups' },
 ]
 
+const onlyEng = items.filter(item => item.title !== 'telegram').map(item => item.title);
+
 export default function AppSidebar() {
   const pathname = usePathname();
   const locale = useLocale();
@@ -33,6 +35,7 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
+                (locale === 'en' && onlyEng.includes(item.title) || locale === 'ru') &&
                 <SidebarMenuItem key={item.title} className='stroke-pink-700'>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
