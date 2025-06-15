@@ -1,0 +1,136 @@
+/* Внешний контейнер. Просто держит все в углу. */
+.widgetContainer {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+/* Этот блок будет анимироваться */
+.widgetAnimator {
+  display: flex;
+  border-radius: 16px;
+  background-color: #1DB954;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  transform: translateX(0%);
+}
+
+.widgetAnimator.hidden {
+  /* Мы не просто скрываем его, а сдвигаем, чтобы кнопка осталась на месте */
+  transform: translateX(calc(100% - 48px)); /* 48px - ширина кнопки */
+}
+
+/* Контент внутри. Добавляем отступ справа, чтобы освободить место для кнопки */
+.widgetContent {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  /* Важно: добавляем отступ справа, равный ширине кнопки, чтобы текст не заезжал под нее */
+  padding-right: 56px; /* 48px (ширина кнопки) + 8px (зазор) */
+  min-height: 72px;
+}
+
+/* --- КЛЮЧЕВЫЕ ИЗМЕНЕНИЯ ЗДЕСЬ --- */
+.toggleButton {
+  /* Возвращаем позиционирование, чтобы z-index работал */
+  position: relative; 
+  /* Поднимаем кнопку над контентом */
+  z-index: 2; 
+
+  /* Сдвигаем кнопку влево на ее собственную ширину, чтобы она наложилась на .widgetAnimator */
+  margin-left: -48px;
+  
+  /* Остальные стили для внешнего вида */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 72px;
+  background-color: rgba(0,0,0,0.2); /* Делаем чуть темнее для контраста */
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  transition: background-color 0.2s ease;
+}
+
+.toggleButton:hover {
+    background-color: rgba(0,0,0,0.3);
+}
+
+.chevron {
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  transform: rotate(0deg);
+}
+
+.chevron.chevronHidden {
+  transform: rotate(180deg);
+}
+
+
+/* --- Остальные стили без изменений --- */
+.notPlaying {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  /* Убедимся, что и этот блок имеет отступ */
+  padding-right: 56px; 
+}
+
+.playingLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.albumArt {
+  border-radius: 10px;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+}
+
+.trackInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 150px;
+  max-width: 200px;
+  overflow: hidden;
+}
+
+.titleContainer {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+  display: inline-block;
+}
+
+.artist {
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.3;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

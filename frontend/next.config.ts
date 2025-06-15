@@ -8,15 +8,39 @@ const withNextIntl = createNextIntlPlugin('./app/i18n.ts');
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "cdn4.cdn-telegram.org" },
-      { protocol: "https", hostname: "www.codewars.com" },
-      { protocol: "https", hostname: "streak-stats.demolab.com" },
-      { protocol: "https", hostname: "github-readme-stats.vercel.app" },
-      { protocol: "https", hostname: "upload.wikimedia.org" },
-      { protocol: "https", hostname: "static-00.iconduck.com" },
-      { protocol: "https", hostname: "cdn.pixabay.com" }
+      {
+        protocol: 'https',
+        hostname: 'i.scdn.co',
+        port: '',
+        pathname: '/image/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.codewars.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'streak-stats.demolab.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'github-readme-stats.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static-00.iconduck.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.pixabay.com',
+      },
     ],
   },
+
 };
 
 export default withNextIntl(nextConfig);

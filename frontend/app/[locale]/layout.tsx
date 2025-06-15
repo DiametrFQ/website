@@ -11,6 +11,7 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import Script from "next/script.js";
 import { locales as appLocales } from '@/types/i18n';
 import "@fontsource/material-symbols-outlined"
+import NowPlaying from "../_components/NowPlaying/NowPlaying";
 
 type Props = {
   children: React.ReactNode;
@@ -78,6 +79,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </NextIntlClientProvider>
           </ThemeProvider>
         </StoreProvider>
+        <NowPlaying /> 
       </body>
     </html>
   );

@@ -20,6 +20,9 @@ async-trait = "0.1.88"
 bytes = "1.10.1"
 actix-web-prom = "0.7"
 prometheus = { version = "0.13", features = ["process"] }
+base64 = "0.22"
+futures-util = "0.3"
+async-stream = "0.3.6"
 
 [[test]]
 name = "api_tests"

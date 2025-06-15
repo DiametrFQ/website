@@ -17,6 +17,9 @@ services:
     container_name: website_backend
     environment:
       - RUST_LOG=${RUST_LOG_LEVEL:-debug}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
     networks:
       - app_network
     restart: unless-stopped
@@ -60,11 +63,11 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana-provisioning/:/etc/grafana/provisioning/
     environment:
-    - GF_SECURITY_ADMIN_USER=admin
-    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-    - GF_USERS_ALLOW_SIGN_UP=false
-    - GF_SERVER_ROOT_URL=https://diametrfq.ru/grafana
-    - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://diametrfq.ru/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - app_network
     restart: unless-stopped
