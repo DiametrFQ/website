@@ -13,6 +13,6 @@ export const config = {
     
     '/(ru|en)/:path*',
 
-    '/((?!_next|_vercel|api|grafana|.*\\..*).*)'
+    '/((?!api|_next|.*\\..*).*)'
   ]
 };

@@ -1,128 +1,118 @@
-use crate::errors::{AppResult, AppError};
-use super::models::{TokenResponse, CurrentlyPlayingResponse, NowPlaying};
-use std::env;
-use actix_web::web;
-use base64::{Engine as _, engine::general_purpose};
-use std::sync::Mutex;
-use std::time::{Instant, Duration};
-use async_stream::stream;
-use tokio::time;
-use serde_json;
+// backend/src/spotify/services.rs
 
-type TokenCache = Mutex<Option<(String, Instant)>>;
+use super::models::{NowPlayingResponse, SpotifyErrorResponse, TokenResponse};
+use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
+use log::{error, info, warn};
+use reqwest::StatusCode;
 
-async fn get_access_token(cache: &TokenCache) -> AppResult<String> {
-    let mut cached_token = cache.lock().unwrap();
+#[derive(Clone)]
+pub struct SpotifyService {
+    client_id: String,
+    client_secret: String,
+    refresh_token: String,
+    access_token: Option<String>,
+}
 
-    if let Some((token, expiry)) = cached_token.as_ref() {
-        if *expiry > Instant::now() {
-            log::info!("Using cached Spotify token.");
-            return Ok(token.clone());
+impl SpotifyService {
+    pub fn new(client_id: String, client_secret: String, refresh_token: String) -> Self {
+        Self {
+            client_id,
+            client_secret,
+            refresh_token,
+            access_token: None,
         }
     }
 
-    log::info!("Requesting new Spotify token.");
-    let client_id = env::var("SPOTIFY_CLIENT_ID").map_err(|_| AppError::InternalError("SPOTIFY_CLIENT_ID not set".to_string()))?;
-    let client_secret = env::var("SPOTIFY_CLIENT_SECRET").map_err(|_| AppError::InternalError("SPOTIFY_CLIENT_SECRET not set".to_string()))?;
-    let refresh_token = env::var("SPOTIFY_REFRESH_TOKEN").map_err(|_| AppError::InternalError("SPOTIFY_REFRESH_TOKEN not set".to_string()))?;
-
-    let client = reqwest::Client::new();
-    let auth_header = format!("Basic {}", general_purpose::STANDARD.encode(format!("{}:{}", client_id, client_secret)));
-
-    let params = [
-        ("grant_type", "refresh_token"),
-        ("refresh_token", &refresh_token),
-    ];
-
-    let response = client.post("https://accounts.spotify.com/api/token")
-        .header("Authorization", auth_header)
-        .form(&params)
-        .send()
-        .await?
-        .json::<TokenResponse>()
-        .await?;
-
-    let expires_in = Duration::from_secs(response.expires_in.saturating_sub(60));
-    let new_expiry = Instant::now() + expires_in;
-    let new_token = response.access_token;
-    
-    *cached_token = Some((new_token.clone(), new_expiry));
-    
-    Ok(new_token)
-}
-
-pub async fn get_now_playing(token_cache: &TokenCache) -> AppResult<NowPlaying> {
-    let access_token = get_access_token(token_cache).await?; // Используем кэширующую функцию
-    let client = reqwest::Client::new();
-
-    let response = client.get("https://api.spotify.com/v1/me/player/currently-playing")
-        .bearer_auth(access_token)
-        .send()
-        .await;
-
-    match response {
-        Ok(res) => {
-            if res.status() == 204 {
-                return Ok(NowPlaying {
-                    is_playing: false, title: None, artist: None, album_image_url: None, song_url: None,
-                });
-            }
-            
-            let data = res.json::<CurrentlyPlayingResponse>().await?;
-            if !data.is_playing || data.item.is_none() {
-                return Ok(NowPlaying {
-                    is_playing: false, title: None, artist: None, album_image_url: None, song_url: None,
-                });
+    // Возвращаемся к простому `async fn`!
+    pub async fn fetch_now_playing(
+        &mut self,
+    ) -> Result<Option<NowPlayingResponse>, Box<dyn std::error::Error>> {
+        // Убираем рекурсию, заменяем ее циклом с одной попыткой повтора
+        for attempt in 1..=2 {
+            if self.access_token.is_none() {
+                // Если токена нет, получаем его. Если не получилось - выходим с ошибкой.
+                self.refresh_token_logic().await?;
             }
 
-            let item = data.item.unwrap();
-            let artists = item.artists.into_iter().map(|a| a.name).collect::<Vec<String>>().join(", ");
-            let album_image_url = item.album.images.first().map(|i| i.url.clone());
-            
-            Ok(NowPlaying {
-                is_playing: true,
-                title: Some(item.name),
-                artist: Some(artists),
-                album_image_url,
-                song_url: Some(item.external_urls.spotify),
-            })
+            let access_token = self.access_token.as_ref().unwrap();
+
+            let client = reqwest::Client::new();
+            let response = client
+                .get("https://api.spotify.com/v1/me/player/currently-playing")
+                .header("Authorization", format!("Bearer {}", access_token))
+                .send()
+                .await?;
+
+            let status = response.status();
+
+            match status {
+                StatusCode::OK => {
+                    // Все хорошо, парсим и выходим из цикла
+                    let now_playing_response = response.json::<NowPlayingResponse>().await?;
+                    return Ok(Some(now_playing_response));
+                }
+                StatusCode::NO_CONTENT => {
+                    // Ничего не играет, выходим из цикла
+                    return Ok(None);
+                }
+                StatusCode::UNAUTHORIZED => {
+                    // Токен протух. На второй итерации цикла он обновится.
+                    warn!("Spotify token unauthorized. Attempting refresh (attempt {}/2)", attempt);
+                    self.access_token = None; // Сбрасываем токен, чтобы он точно обновился
+                    continue; // Переходим к следующей итерации цикла
+                }
+                _ => {
+                    // Любая другая ошибка - выходим
+                    let error_text = response.text().await?;
+                    return Err(format!("Spotify API error: {} - {}", status, error_text).into());
+                }
+            }
         }
-        Err(e) => {
-            log::error!("Failed to get currently playing from Spotify: {}", e);
-            Err(AppError::RequestError(e))
-        }
+
+        // Если мы здесь, значит, обе попытки не удались
+        Err("Failed to fetch now playing after 2 attempts.".into())
     }
-}
 
-pub fn now_playing_stream(token_cache: web::Data<TokenCache>) -> impl futures_util::Stream<Item = AppResult<String>> {
-    let cache_for_stream = Mutex::new(token_cache.lock().unwrap().clone());
-    
-    stream! {
-        let mut last_song_id: Option<String> = None;
+    async fn refresh_token_logic(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Requesting a new Spotify token.");
 
-        loop {
-            time::sleep(Duration::from_secs(5)).await;
+        let mut params = std::collections::HashMap::new();
+        params.insert("grant_type", "refresh_token");
+        params.insert("refresh_token", &self.refresh_token);
 
-            match get_now_playing(&cache_for_stream).await {
-                Ok(now_playing) => {
-                    let current_song_id = if now_playing.is_playing {
-                        now_playing.song_url.clone()
-                    } else {
-                        None
-                    };
+        let client = reqwest::Client::new();
+        let auth_string = format!("{}:{}", self.client_id, self.client_secret);
+        let encoded_auth = BASE64_STANDARD.encode(auth_string);
 
-                    if current_song_id != last_song_id {
-                        last_song_id = current_song_id;
-                        match serde_json::to_string(&now_playing) {
-                            Ok(json_string) => yield Ok(json_string),
-                            Err(e) => yield Err(AppError::InternalError(format!("Serialization failed: {}", e))),
-                        }
-                    }
+        let token_req_response = client
+            .post("https://accounts.spotify.com/api/token")
+            .header("Authorization", format!("Basic {}", encoded_auth))
+            .form(&params)
+            .send()
+            .await?;
+
+        let status = token_req_response.status();
+        let response_text = token_req_response.text().await?;
+
+        if status.is_success() {
+            match serde_json::from_str::<TokenResponse>(&response_text) {
+                Ok(token_response) => {
+                    self.access_token = Some(token_response.access_token);
+                    info!("Successfully refreshed Spotify token.");
+                    Ok(())
                 }
                 Err(e) => {
-                    log::error!("Error fetching now playing in stream: {:?}", e);
+                    error!("Failed to parse successful token response. Body: '{}'. Error: {}", response_text, e);
+                    Err(e.into())
                 }
             }
+        } else {
+            let error_message = match serde_json::from_str::<SpotifyErrorResponse>(&response_text) {
+                Ok(err_resp) => format!("Spotify API Error: {} - {}", err_resp.error, err_resp.error_description),
+                Err(_) => format!("Unknown Spotify API error. Status: {}, Body: '{}'", status, response_text),
+            };
+            error!("{}", error_message);
+            Err(error_message.into())
         }
     }
 }

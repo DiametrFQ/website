@@ -5,7 +5,7 @@ services:
     image: diametrfq/website:latest
     container_name: website_frontend
     environment:
-      - RUST_BACKEND_URL=http://website-backend:8080/
+      - RUST_BACKEND_URL=http://backend:8080
     networks:
       - app_network
     restart: unless-stopped
@@ -16,7 +16,7 @@ services:
     image: diametrfq/website-backend:latest
     container_name: website_backend
     environment:
-      - RUST_LOG=${RUST_LOG_LEVEL:-debug}
+      - RUST_LOG=${RUST_LOG_LEVEL:-debug,info}
       - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
@@ -31,7 +31,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf.prod:/etc/nginx/nginx.conf:ro
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/www/certbot:/var/www/certbot:ro
     depends_on:

@@ -27,13 +27,15 @@ interface NowPlayingData {
 
 const SpotifyWidget = () => {
   const [data, setData] = useState<NowPlayingData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<'loading' | 'connected' | 'error'>('loading');
   const [isHidden, setIsHidden] = useState(false);
   
   useEffect(() => {
     const eventSource = new EventSource('/api/spotify-stream');
 
-    eventSource.onopen = () => setLoading(false);
+    eventSource.onopen = () => {
+      setStatus('connected');
+    };
     eventSource.onmessage = (event) => {
       try {
         setData(JSON.parse(event.data));
@@ -41,7 +43,13 @@ const SpotifyWidget = () => {
         console.error('Failed to parse event data:', e);
       }
     };
-    eventSource.onerror = () => setLoading(true);
+    eventSource.onerror = (err) =>  {
+      console.error('SpotifyWidget: Stream error.', err);
+      setStatus('error');
+      // Не нужно вызывать setLoading(true), это мешает.
+      // Вместо этого можно закрыть источник, чтобы браузер не пытался переподключиться.
+      eventSource.close();
+    };
 
     return () => eventSource.close();
   }, []);
@@ -54,20 +62,30 @@ const SpotifyWidget = () => {
     }
   }, [data?.title]);
 
-  if (loading) {
-    return null;
-  }
-  
-  return (
+
+   return (
     <div className={styles.widgetContainer}> 
       <div className={`${styles.widgetAnimator} ${isHidden ? styles.hidden : ''}`}>
         <div className={styles.widgetContent}>
-          {!data || !data.isPlaying ? (
+          {status === 'loading' && (
+            <div className={styles.notPlaying}>
+              <SpotifyIcon />
+              <span>Connecting...</span>
+            </div>
+          )}
+          {status === 'error' && (
+            <div className={styles.notPlaying}>
+              <SpotifyIcon />
+              <span>Connection Error</span>
+            </div>
+          )}
+          {status === 'connected' && (!data || !data.isPlaying) && (
             <div className={styles.notPlaying}>
               <SpotifyIcon />
               <span>Not Listening</span>
             </div>
-          ) : (
+          )}
+          {status === 'connected' && data && data.isPlaying && (
             <a href={data.songUrl} target="_blank" rel="noopener noreferrer" className={styles.playingLink}>
               {data.albumImageUrl && (
                 <Image
