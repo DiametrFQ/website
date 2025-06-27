@@ -1,80 +1,20 @@
+# .github/workflows/deploy.yml
 name: Build, Test and Deploy
 
 on:
-  pull_request:
+  # Запускаем деплой только при мерже в main
+  push:
     branches:
       - main
 
 jobs:
-  build_artifacts:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install Frontend Dependencies and Build
-        working-directory: ./frontend
-        run: |
-          npm ci
-          npm run build
-
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      
-      - name: Set up Rust cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Build Backend (Release)
-        working-directory: ./backend
-        run: cargo build --release --verbose
-
-      - name: Upload Frontend Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: |
-            frontend/.next
-            frontend/public
-            frontend/package.json
-            frontend/package-lock.json
-            frontend/next.config.mjs
-
-      - name: Upload Backend Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-build
-          path: backend/target/release/backend
-
   build_and_push_docker:
     runs-on: ubuntu-latest
-    needs: build_artifacts
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download Frontend Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/
-      
-      - name: Download Backend Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-build
-          path: backend/target/release/
-
+      # 1. Сборка фронтенда внутри Docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -90,30 +30,36 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/website:latest
+          # Добавляем --no-cache, чтобы гарантированно подхватить изменения
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+      # 2. Сборка бэкенда внутри Docker
       - name: Build and Push Backend Docker Image
+        # Для бэкенда мы тоже можем использовать multi-stage build, чтобы не собирать его заранее.
+        # Это более надежно. Давайте создадим для него правильный Dockerfile.
         uses: docker/build-push-action@v5
         with:
           context: ./backend
+          file: ./backend/Dockerfile.prod # <-- Будем использовать специальный Dockerfile для прода
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/website-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
   
   deploy_to_server:
     runs-on: ubuntu-latest
     needs: build_and_push_docker
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      # Копируем только нужные для запуска файлы
       - name: Transfer Files to Server
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./nginx.prod.conf,./prometheus.yml,./grafana-provisioning"
-          target: "/myPath"
-          strip_components: 1
+          source: "./docker-compose.yml,./nginx.prod.conf,./prometheus.yml,./grafana-provisioning/"
+          target: "/home/diametrfq/site" # Используйте ваш реальный путь
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
@@ -122,13 +68,23 @@ jobs:
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
-            cd /myPath
-            export GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
-            export SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
-            export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
-            export SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+            cd /home/diametrfq/site
+            
+            # Экспортируем все секреты
+            export GRAFANA_ADMIN_PASSWORD='${{ secrets.GRAFANA_ADMIN_PASSWORD }}'
+            export SPOTIFY_CLIENT_ID='${{ secrets.SPOTIFY_CLIENT_ID }}'
+            export SPOTIFY_CLIENT_SECRET='${{ secrets.SPOTIFY_CLIENT_SECRET }}'
+            export SPOTIFY_REFRESH_TOKEN='${{ secrets.SPOTIFY_REFRESH_TOKEN }}'
+            export RUST_LOG_LEVEL='info' # Устанавливаем уровень логов для прода
 
+            # Логинимся в Docker Hub
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker-compose -f /docker-compose.yml pull
-            docker-compose -f /docker-compose.yml up -d --remove-orphans
+            
+            # Принудительно скачиваем новые версии образов
+            docker compose pull
+            
+            # Пересоздаем контейнеры, чтобы они использовали новые образы
+            docker compose up -d --force-recreate --remove-orphans
+            
+            # Чистим старые, неиспользуемые образы
             docker system prune -af
