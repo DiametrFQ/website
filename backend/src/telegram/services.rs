@@ -1,9 +1,9 @@
-use rss::Channel;
-use crate::errors::{AppResult, AppError};
 use super::models::Post;
-use scraper::Html;
+use crate::errors::{AppError, AppResult};
 use async_trait::async_trait;
 use bytes::Bytes;
+use rss::Channel;
+use scraper::Html;
 
 const TELEGRAM_CHANNEL: &str = "diametrpd";
 
@@ -23,7 +23,10 @@ impl RssFetcher for RealRssFetcher {
         })?;
 
         if !response.status().is_success() {
-            log::error!("External service responded with non-success status: {}", response.status());
+            log::error!(
+                "External service responded with non-success status: {}",
+                response.status()
+            );
             return Err(AppError::ServiceErrorWithFallback);
         }
 
@@ -40,12 +43,15 @@ pub async fn fetch_telegram_posts(fetcher: &(dyn RssFetcher + Sync)) -> AppResul
         // Если не смогли распарсить, тоже делаем fallback
         AppError::ServiceErrorWithFallback
     })?;
-    
+
     let posts: Vec<Post> = channel
         .items()
         .iter()
         .map(|item| {
-            let raw_html_snippet = item.description().unwrap_or_else(|| item.content().unwrap_or("")).to_string();
+            let raw_html_snippet = item
+                .description()
+                .unwrap_or_else(|| item.content().unwrap_or(""))
+                .to_string();
             let plain_text_snippet = html_to_plaintext(&raw_html_snippet);
             Post {
                 title: item.title().unwrap_or("Без заголовка").to_string(),
@@ -55,7 +61,7 @@ pub async fn fetch_telegram_posts(fetcher: &(dyn RssFetcher + Sync)) -> AppResul
             }
         })
         .collect();
-    
+
     Ok(posts)
 }
 
@@ -65,7 +71,10 @@ fn html_to_plaintext(html_content: &str) -> String {
     }
     let document = Html::parse_fragment(html_content);
     let text_content = document.root_element().text().collect::<Vec<_>>().join(" ");
-    text_content.split_whitespace().collect::<Vec<&str>>().join(" ")
+    text_content
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .join(" ")
 }
 
 fn extract_image_url(item: &rss::Item) -> Option<String> {
@@ -127,17 +136,17 @@ mod tests {
                 </channel>
             </rss>
         "#;
-        
+
         let mock_fetcher = MockRssFetcher {
             response: Ok(Bytes::from(fake_rss)),
         };
 
         let result = fetch_telegram_posts(&mock_fetcher).await;
         assert!(result.is_ok(), "Function should return Ok on valid RSS");
-        
+
         let posts = result.unwrap();
         assert_eq!(posts.len(), 3, "Should parse all 3 items");
-        
+
         assert_eq!(posts[0].title, "Post 1");
         assert_eq!(posts[0].content_snippet, "Desc 1");
 
@@ -156,24 +165,29 @@ mod tests {
         };
 
         let result = fetch_telegram_posts(&mock_fetcher).await;
-        
+
         assert!(result.is_err());
         match result.unwrap_err() {
             AppError::ServiceErrorWithFallback => (), // Успех!
-            other => panic!("Expected ServiceErrorWithFallback on parsing error, but got {:?}", other),
+            other => panic!(
+                "Expected ServiceErrorWithFallback on parsing error, but got {:?}",
+                other
+            ),
         }
     }
 
     #[tokio::test]
     async fn test_fetch_posts_on_network_error() {
         let mock_fetcher = MockRssFetcher {
-            response: Err(AppError::InternalError("Simulated network failure".to_string())),
+            response: Err(AppError::InternalError(
+                "Simulated network failure".to_string(),
+            )),
         };
 
         let result = fetch_telegram_posts(&mock_fetcher).await;
         assert!(result.is_err());
     }
-    
+
     #[test]
     fn test_html_to_plaintext_conversion() {
         let html = "<div> <p>Hello  <b>world</b> & friends</p>\n<span>!</span> </div>";
@@ -185,7 +199,9 @@ mod tests {
     fn test_image_url_extraction() {
         // --- Тест 1: Картинка в <description> ---
         let mut item1 = rss::Item::default();
-        item1.set_description(String::from("<p>text</p><img src='http://test.com/image.png' />"));
+        item1.set_description(String::from(
+            "<p>text</p><img src='http://test.com/image.png' />",
+        ));
         let result1 = extract_image_url(&item1);
         assert!(result1.is_some(), "Test 1 failed");
         assert_eq!(result1.unwrap(), "http://test.com/image.png");
@@ -194,9 +210,12 @@ mod tests {
         let mut item2 = rss::Item::default();
         item2.set_content(String::from("<img src=\"https://another.com/image.gif\">"));
         let result2 = extract_image_url(&item2);
-        assert!(result2.is_some(), "Test 2 failed: Should find an image in content");
+        assert!(
+            result2.is_some(),
+            "Test 2 failed: Should find an image in content"
+        );
         assert_eq!(result2.unwrap(), "https://another.com/image.gif");
-        
+
         // --- Тест 3: Картинка из <enclosure> (имеет приоритет) ---
         let mut item3 = rss::Item::default();
         item3.set_content(String::from("<img src=\"ignored.png\">")); // Картинка для игнорирования
@@ -206,8 +225,12 @@ mod tests {
         item3.set_enclosure(enclosure);
         let result3 = extract_image_url(&item3);
         assert!(result3.is_some(), "Test 3 failed");
-        assert_eq!(result3.unwrap(), "http://priority.com/enclosure.jpg", "Enclosure should have priority");
-        
+        assert_eq!(
+            result3.unwrap(),
+            "http://priority.com/enclosure.jpg",
+            "Enclosure should have priority"
+        );
+
         // --- Тест 4: Нет картинки ---
         let item_no_image = rss::Item::default();
         assert!(extract_image_url(&item_no_image).is_none(), "Test 4 failed");

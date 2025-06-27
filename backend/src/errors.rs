@@ -1,4 +1,4 @@
-use actix_web::{error::ResponseError, HttpResponse};
+use actix_web::{HttpResponse, error::ResponseError};
 use serde::Serialize;
 
 #[derive(Debug, thiserror::Error)]
@@ -28,7 +28,7 @@ impl ResponseError for AppError {
     fn error_response(&self) -> HttpResponse {
         // Логируем любую ошибку, дошедшую до этого обработчика.
         log::error!("A ResponseError occurred: {}", self);
-        
+
         // Для всех ошибок, которые мы не обработали вручную в хендлере,
         // возвращаем стандартный ответ 500.
         // AppError::ServiceErrorWithFallback сюда попадать не должна.

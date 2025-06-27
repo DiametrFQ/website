@@ -2,17 +2,15 @@ import { HttpError } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) { // Добавим request, чтобы отслеживать отключение
+export async function GET(request: Request) {
   const backendUrl = process.env.RUST_BACKEND_URL || 'http://localhost:8080';
-  const streamUrl = `${backendUrl}/api/spotify/now-playing-stream`;
+
+  const streamUrl = new URL('/api/spotify/now_playing_stream', backendUrl);
 
   try {
     const backendResponse = await fetch(streamUrl, {
-      headers: {
-        'Accept': 'text/event-stream',
-      },
+      headers: { 'Accept': 'text/event-stream' },
       cache: 'no-store',
-      // signal важен для отмены fetch, если клиент отключается
       signal: request.signal,
     });
     
@@ -28,41 +26,23 @@ export async function GET(request: Request) { // Добавим request, что�
             return;
         }
         const reader = backendResponse.body.getReader();
-        // Флаг, который говорит нам, что стрим был принудительно закрыт
         let isClosed = false;
-
-        // Функция для аккуратного закрытия
         const cleanup = () => {
             if (isClosed) return;
             isClosed = true;
-            reader.releaseLock();
+            try { reader.releaseLock(); } catch {}
             controller.close();
-            console.log("Stream to client closed.");
         };
-
-        // Если клиент отключается (например, уходит со страницы)
         request.signal.addEventListener('abort', cleanup);
         
         try {
           while (!isClosed) {
             const { done, value } = await reader.read();
-            
-            // Если стрим с бэкенда закончился или клиент отключился
-            if (done || isClosed) {
-              break;
-            }
-            
-            // Дополнительная проверка перед записью
-            if (!isClosed) {
-               controller.enqueue(value);
-            }
+            if (done || isClosed) break;
+            if (!isClosed) controller.enqueue(value);
           }
         } catch (error) {
-          // Эта ошибка может возникнуть, если сам fetch был отменен
-          console.error('Error while reading stream from backend:', error);
-          if (!isClosed) {
-            controller.error(error);
-          }
+          if (!isClosed) controller.error(error);
         } finally {
           cleanup();
         }
@@ -79,8 +59,7 @@ export async function GET(request: Request) { // Добавим request, что�
 
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.log('Stream request aborted by client.');
-      return new Response('Stream aborted', { status: 499 }); // 499 Client Closed Request
+      return new Response('Stream aborted', { status: 499 });
     }
 
     console.error('Error proxying spotify stream:', error);
