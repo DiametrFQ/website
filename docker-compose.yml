@@ -72,8 +72,9 @@ services:
       - app_network
     restart: unless-stopped
     depends_on:
+      - loki
       - prometheus
-      
+
   node-exporter:
     image: prom/node-exporter:v1.6.1
     container_name: node_exporter
@@ -90,7 +91,7 @@ services:
     networks:
       - app_network
     restart: unless-stopped
-    
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: cadvisor
@@ -103,10 +104,38 @@ services:
       - app_network
     restart: unless-stopped
 
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100" # Порт для приема логов
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-storage:/loki # Volume для хранения данных логов
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - app_network
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: promtail
+    user: root
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - app_network
+    depends_on:
+      - loki
+
 volumes:
   prometheus_data:
   grafana_data:
-  
+  loki-storage:
+
 networks:
   app_network:
     driver: bridge
