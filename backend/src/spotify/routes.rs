@@ -2,10 +2,6 @@ use crate::spotify::handlers;
 use actix_web::web;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
-    println!("Spotify routes configured successfully.");
-    println!("/spotify/now_playing: Get current playing track");
-    println!("/spotify/now_playing_stream: Stream current playing track updates");
-
     cfg.service(
         web::scope("/spotify")
             .route(
