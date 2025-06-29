@@ -9,7 +9,14 @@ use tokio_stream::{wrappers::IntervalStream, StreamExt};
 pub async fn get_now_playing_handler(
     spotify_service: web::Data<Mutex<SpotifyService>>,
 ) -> impl Responder {
-    let mut service = spotify_service.lock().unwrap();
+    let mut service = match spotify_service.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            error!("Mutex was poisoned in get_now_playing_handler: {}", poisoned);
+            return HttpResponse::InternalServerError().body("Internal server error: shared data lock poisoned");
+        }
+    };
+
     match service.fetch_now_playing().await {
         Ok(Some(data)) => HttpResponse::Ok().json(data),
         Ok(None) => HttpResponse::NoContent().finish(),

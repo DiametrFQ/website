@@ -5,9 +5,14 @@ use dotenvy::dotenv;
 use std::env;
 use std::sync::{Arc, Mutex}; 
 use backend::telegram::services::{RssFetcher, RealRssFetcher};
+use std::panic;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    panic::set_hook(Box::new(|panic_info| {
+        eprintln!("A thread has panicked! Panic details: {}", panic_info);
+    }));
+
     dotenv().ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 

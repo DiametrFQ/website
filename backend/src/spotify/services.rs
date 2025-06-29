@@ -34,7 +34,14 @@ impl SpotifyService {
                 self.refresh_token_logic().await?;
             }
 
-            let access_token = self.access_token.as_ref().unwrap();
+            let access_token = match self.access_token.as_ref() {
+                Some(token) => token,
+                None => {
+                    // Эта ветка не должна выполниться, если `?` выше работает,
+                    // но это защищает нас от паники.
+                    return Err("Failed to obtain access token before making request.".into());
+                }
+            };
 
             let client = reqwest::Client::new();
             let response = client
