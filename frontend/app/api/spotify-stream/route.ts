@@ -1,70 +1,60 @@
-import { HttpError } from '@/lib/api';
+import { NextRequest } from 'next/server';
+import http from 'http';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const backendUrl = process.env.RUST_BACKEND_URL || 'http://localhost:8080';
+  
+  const url = new URL(backendUrl);
+  const options = {
+    hostname: url.hostname,
+    port: url.port,
+    path: '/api/spotify/now_playing_stream',
+    method: 'GET',
+    headers: {
+      'Accept': 'text/event-stream',
+      'Connection': 'keep-alive',
+    },
+  };
 
-  const streamUrl = new URL('/api/spotify/now_playing_stream', backendUrl);
+  const stream = new ReadableStream({
+    start(controller) {
+      const backendRequest = http.get(options, (backendResponse) => {
+        backendResponse.on('data', (chunk) => {
+          controller.enqueue(chunk);
+        });
 
-  try {
-    const backendResponse = await fetch(streamUrl, {
-      headers: { 'Accept': 'text/event-stream' },
-      cache: 'no-store',
-      signal: request.signal,
-    });
-    
-    if (!backendResponse.ok) {
-        const errorText = await backendResponse.text();
-        throw new HttpError(backendResponse.status, errorText);
-    }
+        backendResponse.on('end', () => {
+          console.log('Backend stream ended.');
+          controller.close();
+        });
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        if (!backendResponse.body) {
-            controller.close();
-            return;
-        }
-        const reader = backendResponse.body.getReader();
-        let isClosed = false;
-        const cleanup = () => {
-            if (isClosed) return;
-            isClosed = true;
-            try { reader.releaseLock(); } catch {}
-            controller.close();
-        };
-        request.signal.addEventListener('abort', cleanup);
-        
-        try {
-          while (!isClosed) {
-            const { done, value } = await reader.read();
-            if (done || isClosed) break;
-            if (!isClosed) controller.enqueue(value);
-          }
-        } catch (error) {
-          if (!isClosed) controller.error(error);
-        } finally {
-          cleanup();
-        }
-      },
-    });
+        backendResponse.on('error', (err) => {
+            console.error('Error in backend response stream:', err);
+            controller.error(err);
+        });
+      });
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+      backendRequest.on('error', (err) => {
+        console.error('Error making request to backend:', err);
+        controller.error(err);
+      });
+      
+      request.signal.addEventListener('abort', () => {
+        console.log('Client aborted request. Destroying backend request.');
+        backendRequest.destroy();
+        controller.close();
+      });
+    },
+  });
 
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      return new Response('Stream aborted', { status: 499 });
-    }
-
-    console.error('Error proxying spotify stream:', error);
-    const status = error instanceof HttpError ? error.status : 500;
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return new Response(JSON.stringify({ error: 'Failed to connect to backend stream', details: message }), { status });
-  }
+  return new Response(stream, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
 }

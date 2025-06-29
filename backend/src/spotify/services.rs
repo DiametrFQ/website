@@ -1,5 +1,3 @@
-// backend/src/spotify/services.rs
-
 use super::models::{NowPlayingResponse, SpotifyErrorResponse, TokenResponse};
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use log::{error, info, warn};
@@ -23,22 +21,17 @@ impl SpotifyService {
         }
     }
 
-    // Возвращаемся к простому `async fn`!
     pub async fn fetch_now_playing(
         &mut self,
     ) -> Result<Option<NowPlayingResponse>, Box<dyn std::error::Error>> {
-        // Убираем рекурсию, заменяем ее циклом с одной попыткой повтора
         for attempt in 1..=2 {
             if self.access_token.is_none() {
-                // Если токена нет, получаем его. Если не получилось - выходим с ошибкой.
                 self.refresh_token_logic().await?;
             }
 
             let access_token = match self.access_token.as_ref() {
                 Some(token) => token,
                 None => {
-                    // Эта ветка не должна выполниться, если `?` выше работает,
-                    // но это защищает нас от паники.
                     return Err("Failed to obtain access token before making request.".into());
                 }
             };
@@ -54,29 +47,25 @@ impl SpotifyService {
 
             match status {
                 StatusCode::OK => {
-                    // Все хорошо, парсим и выходим из цикла
+
                     let now_playing_response = response.json::<NowPlayingResponse>().await?;
                     return Ok(Some(now_playing_response));
                 }
                 StatusCode::NO_CONTENT => {
-                    // Ничего не играет, выходим из цикла
                     return Ok(None);
                 }
                 StatusCode::UNAUTHORIZED => {
-                    // Токен протух. На второй итерации цикла он обновится.
                     warn!("Spotify token unauthorized. Attempting refresh (attempt {}/2)", attempt);
-                    self.access_token = None; // Сбрасываем токен, чтобы он точно обновился
-                    continue; // Переходим к следующей итерации цикла
+                    self.access_token = None;
+                    continue;
                 }
                 _ => {
-                    // Любая другая ошибка - выходим
                     let error_text = response.text().await?;
                     return Err(format!("Spotify API error: {} - {}", status, error_text).into());
                 }
             }
         }
 
-        // Если мы здесь, значит, обе попытки не удались
         Err("Failed to fetch now playing after 2 attempts.".into())
     }
 
