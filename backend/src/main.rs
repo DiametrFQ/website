@@ -3,9 +3,10 @@ use actix_web::{web, App, HttpServer};
 use backend::config::config_services;
 use dotenvy::dotenv;
 use std::env;
-use std::sync::{Arc, Mutex}; 
+use std::sync::Arc; 
 use backend::telegram::services::{RssFetcher, RealRssFetcher};
 use std::panic;
+use tokio::sync::Mutex; 
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

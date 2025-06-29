@@ -46,8 +46,6 @@ const SpotifyWidget = () => {
     eventSource.onerror = (err) =>  {
       console.error('SpotifyWidget: Stream error.', err);
       setStatus('error');
-      // Не нужно вызывать setLoading(true), это мешает.
-      // Вместо этого можно закрыть источник, чтобы браузер не пытался переподключиться.
       eventSource.close();
     };
 
@@ -61,7 +59,6 @@ const SpotifyWidget = () => {
        setIsMarquee(titleRef.current.scrollWidth > titleRef.current.clientWidth);
     }
   }, [data?.title]);
-
 
    return (
     <div className={styles.widgetContainer}> 
