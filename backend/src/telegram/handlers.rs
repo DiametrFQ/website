@@ -1,14 +1,12 @@
-use actix_web::{HttpResponse, http::header::ContentType, web};
-use std::sync::Arc;
+use actix_web::{HttpResponse, get, http::header::ContentType, web};
 
 use super::services;
+use crate::app_state::AppState;
 use crate::errors::AppError;
-use crate::telegram::services::RssFetcher;
 
-pub async fn get_telegram_posts_handler(
-    fetcher: web::Data<Arc<dyn RssFetcher + Send + Sync>>,
-) -> HttpResponse {
-    let result = services::fetch_telegram_posts(fetcher.get_ref().as_ref()).await;
+#[get("")]
+pub async fn get_telegram_posts_handler(state: web::Data<AppState>) -> HttpResponse {
+    let result = services::fetch_telegram_posts(state.rss_fetcher.as_ref()).await;
 
     match result {
         Ok(posts) => match serde_json::to_string(&posts) {
@@ -20,11 +18,9 @@ pub async fn get_telegram_posts_handler(
                 HttpResponse::InternalServerError().finish()
             }
         },
-        Err(AppError::ServiceErrorWithFallback) => {
-            HttpResponse::Ok()
-                .content_type(ContentType::json())
-                .body("[]") // Просто возвращаем строку
-        }
+        Err(AppError::ServiceErrorWithFallback) => HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .body("[]"),
         Err(other_error) => {
             log::error!("An unhandled error occurred: {:?}", other_error);
             HttpResponse::InternalServerError().finish()
