@@ -1,5 +1,6 @@
 use super::models::{NowPlayingResponse, SpotifyErrorResponse, TokenResponse};
-use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
+use crate::errors::{AppError, AppResult};
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use log::{error, info, warn};
 use reqwest::StatusCode;
 
@@ -21,33 +22,29 @@ impl SpotifyService {
         }
     }
 
-    pub async fn fetch_now_playing(
-        &mut self,
-    ) -> Result<Option<NowPlayingResponse>, Box<dyn std::error::Error>> {
+    pub async fn fetch_now_playing(&mut self) -> AppResult<Option<NowPlayingResponse>> {
         for attempt in 1..=2 {
             if self.access_token.is_none() {
                 self.refresh_token_logic().await?;
             }
 
-            let access_token = match self.access_token.as_ref() {
-                Some(token) => token,
-                None => {
-                    return Err("Failed to obtain access token before making request.".into());
-                }
-            };
+            let access_token = self
+                .access_token
+                .as_ref()
+                .ok_or_else(|| AppError::InternalError("Failed to get access token".to_string()))?;
 
             let client = reqwest::Client::new();
             let response = client
                 .get("https://api.spotify.com/v1/me/player/currently-playing")
                 .header("Authorization", format!("Bearer {}", access_token))
                 .send()
-                .await?;
+                .await
+                .map_err(AppError::from)?;
 
             let status = response.status();
 
             match status {
                 StatusCode::OK => {
-
                     let now_playing_response = response.json::<NowPlayingResponse>().await?;
                     return Ok(Some(now_playing_response));
                 }
@@ -55,21 +52,29 @@ impl SpotifyService {
                     return Ok(None);
                 }
                 StatusCode::UNAUTHORIZED => {
-                    warn!("Spotify token unauthorized. Attempting refresh (attempt {}/2)", attempt);
+                    warn!(
+                        "Spotify token unauthorized. Attempting refresh (attempt {}/2)",
+                        attempt
+                    );
                     self.access_token = None;
                     continue;
                 }
                 _ => {
                     let error_text = response.text().await?;
-                    return Err(format!("Spotify API error: {} - {}", status, error_text).into());
+                    return Err(AppError::InternalError(format!(
+                        "Spotify API error: {} - {}",
+                        status, error_text
+                    )));
                 }
             }
         }
 
-        Err("Failed to fetch now playing after 2 attempts.".into())
+        Err(AppError::InternalError(
+            "Failed to fetch now playing after 2 attempts.".to_string(),
+        ))
     }
 
-    async fn refresh_token_logic(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn refresh_token_logic(&mut self) -> AppResult<()> {
         info!("Requesting a new Spotify token.");
 
         let mut params = std::collections::HashMap::new();
@@ -98,17 +103,29 @@ impl SpotifyService {
                     Ok(())
                 }
                 Err(e) => {
-                    error!("Failed to parse successful token response. Body: '{}'. Error: {}", response_text, e);
-                    Err(e.into())
+                    error!(
+                        "Failed to parse successful token response. Body: '{}'. Error: {}",
+                        response_text, e
+                    );
+                    Err(AppError::InternalError(format!(
+                        "JSON parsing error: {}",
+                        e
+                    )))
                 }
             }
         } else {
             let error_message = match serde_json::from_str::<SpotifyErrorResponse>(&response_text) {
-                Ok(err_resp) => format!("Spotify API Error: {} - {}", err_resp.error, err_resp.error_description),
-                Err(_) => format!("Unknown Spotify API error. Status: {}, Body: '{}'", status, response_text),
+                Ok(err_resp) => format!(
+                    "Spotify API Error: {} - {}",
+                    err_resp.error, err_resp.error_description
+                ),
+                Err(_) => format!(
+                    "Unknown Spotify API error. Status: {}, Body: '{}'",
+                    status, response_text
+                ),
             };
             error!("{}", error_message);
-            Err(error_message.into())
+            Err(AppError::InternalError(error_message))
         }
     }
 }

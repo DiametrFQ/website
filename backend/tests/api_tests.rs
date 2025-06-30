@@ -1,11 +1,9 @@
-use actix_web::{http, test, web, App};
+use actix_web::{App, http, test, web};
 use async_trait::async_trait;
 use backend::{
     config::config_services,
     errors::{AppError, AppResult},
-    spotify::{
-        services::SpotifyService,
-    },
+    spotify::services::SpotifyService,
     telegram::{models::Post, services::RssFetcher},
 };
 use bytes::Bytes;
@@ -43,7 +41,6 @@ impl RssFetcher for MockInternalErrorFetcher {
         Err(AppError::InternalError("critical failure".into()))
     }
 }
-
 
 // --- ИНТЕГРАЦИОННЫЕ ТЕСТЫ API (TELEGRAM) ---
 
@@ -100,7 +97,6 @@ async fn test_telegram_internal_error_returns_500() {
     assert_eq!(resp.status(), http::StatusCode::INTERNAL_SERVER_ERROR);
 }
 
-
 // --- ИНТЕГРАЦИОННЫЙ ТЕСТ API (SPOTIFY) ---
 
 #[actix_web::test]
@@ -108,12 +104,9 @@ async fn test_spotify_stream_returns_sse_data() {
     // 1. Создаем мок-сервис Spotify. В реальном приложении он бы ходил в API,
     // а в тесте он просто возвращает заранее заданные данные.
     // Нам даже не нужно реализовывать для него трейт, т.к. мы используем конкретный тип.
-    let mock_spotify_service = SpotifyService::new(
-        "test_id".into(), 
-        "test_secret".into(), 
-        "test_token".into()
-    );
-    
+    let mock_spotify_service =
+        SpotifyService::new("test_id".into(), "test_secret".into(), "test_token".into());
+
     // 2. Оборачиваем его в Mutex и web::Data, как в main.rs
     let spotify_data = web::Data::new(Mutex::new(mock_spotify_service));
 
@@ -130,7 +123,7 @@ async fn test_spotify_stream_returns_sse_data() {
     let req = test::TestRequest::get()
         .uri("/api/spotify/now_playing_stream")
         .to_request();
-    
+
     let resp = test::call_service(&app, req).await;
 
     // 5. Проверяем, что ответ успешный и имеет правильный Content-Type
@@ -144,7 +137,7 @@ async fn test_spotify_stream_returns_sse_data() {
     // Это более сложный тест, но показывает, как работать со стримом.
     let body_bytes = test::read_body(resp).await;
     let body_str = std::str::from_utf8(&body_bytes).unwrap();
-    
+
     // Ожидаем, что первый ответ будет "не играю", т.к. мок-сервис пустой
     assert!(body_str.contains(r#""isPlaying":false"#));
 }

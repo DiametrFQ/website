@@ -1,31 +1,30 @@
-use crate::spotify::{ models::{NowPlayingResponse, NowPlayingStreamData}, services::SpotifyService};
-use actix_web::{web, Error, HttpResponse, Responder};
+use crate::{
+    app_state::AppState,
+    errors::AppResult,
+    spotify::models::{NowPlayingResponse, NowPlayingStreamData},
+};
+use actix_web::{Error, HttpResponse, Responder, get, web};
+use futures_util::stream::StreamExt;
 use log::{error, info};
-use tokio::time::interval;
 use serde_json;
 use std::time::Duration;
-use tokio::sync::{mpsc, Mutex};
-use tokio_stream::wrappers::ReceiverStream; 
-use futures_util::stream::StreamExt;
+use tokio::sync::mpsc;
+use tokio::time::interval;
+use tokio_stream::wrappers::ReceiverStream;
 
-pub async fn get_now_playing_handler(
-    spotify_service: web::Data<Mutex<SpotifyService>>,
-) -> impl Responder {
-    let mut service = spotify_service.lock().await;
+#[get("/now_playing")]
+pub async fn get_now_playing_handler(state: web::Data<AppState>) -> AppResult<HttpResponse> {
+    let mut service = state.spotify_service.lock().await;
 
-    match service.fetch_now_playing().await {
-        Ok(Some(data)) => HttpResponse::Ok().json(data),
-        Ok(None) => HttpResponse::NoContent().finish(),
-        Err(e) => {
-            error!("Error in get_now_playing handler: {}", e);
-            HttpResponse::InternalServerError().body("Error fetching data from Spotify")
-        }
-    }
+    let response = match service.fetch_now_playing().await? {
+        Some(data) => HttpResponse::Ok().json(data),
+        None => HttpResponse::NoContent().finish(),
+    };
+    Ok(response)
 }
 
-pub async fn now_playing_stream_handler(
-    spotify_service: web::Data<Mutex<SpotifyService>>,
-) -> impl Responder {
+#[get("/now_playing_stream")]
+pub async fn now_playing_stream_handler(state: web::Data<AppState>) -> impl Responder {
     let (tx, rx) = mpsc::channel::<String>(10);
 
     tokio::spawn(async move {
@@ -34,8 +33,8 @@ pub async fn now_playing_stream_handler(
         loop {
             tokio::select! {
                 _ = tick_interval.tick() => {
-                    let spotify_data = spotify_service.clone();
-                    let mut service = spotify_data.lock().await;
+                    let app_state_clone = state.clone();
+                    let mut service = app_state_clone.spotify_service.lock().await;
 
                     let stream_data = match service.fetch_now_playing().await {
                         Ok(Some(response)) => {

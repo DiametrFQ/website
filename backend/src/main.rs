@@ -1,12 +1,10 @@
-use backend::spotify::services::SpotifyService;
-use actix_web::{web, App, HttpServer};
+use actix_web::middleware::Logger;
+use actix_web::{App, HttpServer, web};
 use backend::config::config_services;
+use backend::{app_state::AppState, spotify::services::SpotifyService};
 use dotenvy::dotenv;
 use std::env;
-use std::sync::Arc; 
-use backend::telegram::services::{RssFetcher, RealRssFetcher};
 use std::panic;
-use tokio::sync::Mutex; 
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -28,16 +26,13 @@ async fn main() -> std::io::Result<()> {
         spotify_client_secret,
         spotify_refresh_token,
     );
-    
-    let spotify_data = web::Data::new(Mutex::new(spotify_service));
 
-    let rss_fetcher = RealRssFetcher;
-    let telegram_data: web::Data<Arc<dyn RssFetcher + Send + Sync>> = web::Data::new(Arc::new(rss_fetcher));
+    let app_state = web::Data::new(AppState::new(spotify_service));
 
     HttpServer::new(move || {
         App::new()
-            .app_data(spotify_data.clone())
-            .app_data(telegram_data.clone())
+            .wrap(Logger::default())
+            .app_data(app_state.clone())
             .configure(config_services)
     })
     .bind(("0.0.0.0", 8080))?

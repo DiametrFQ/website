@@ -58,7 +58,7 @@ pub struct NowPlayingStreamData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub album_image_url: Option<String>,
 
-    #[serde(rename = "songUrl")] 
+    #[serde(rename = "songUrl")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub song_url: Option<String>,
 }
