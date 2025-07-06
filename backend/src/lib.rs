@@ -1,5 +1,2 @@
-pub mod app_state;
-pub mod config;
-pub mod errors;
-pub mod spotify;
-pub mod telegram;
+pub mod common;
+pub mod endpoints;

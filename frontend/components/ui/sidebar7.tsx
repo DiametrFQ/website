@@ -47,7 +47,7 @@ function useSidebar() {
   return context
 }
 
-const SIDEBAR_WIDTH_COLLAPSED = "4rem"; // Задали ширину в уменьшенном состоянии
+const SIDEBAR_WIDTH_COLLAPSED = "4rem";
 
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
@@ -130,7 +130,7 @@ const SidebarProvider = React.forwardRef<
           <div
             style={
               {
-                "--sidebar-width": open ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED, // Меняем ширину
+                "--sidebar-width": open ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_COLLAPSED,
                 "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
                 ...style,
               } as React.CSSProperties
@@ -196,7 +196,7 @@ const Sidebar = React.forwardRef<
         ref={ref}
         className={cn(
           "group peer text-sidebar-foreground md:block transition-all duration-300 ease-in-out",
-          state === "collapsed" ? "w-[--sidebar-width-icon]" : "w-[--sidebar-width]", // Управляем шириной
+          state === "collapsed" ? "w-[--sidebar-width-icon]" : "w-[--sidebar-width]",
           className
         )}
         data-state={state}
@@ -414,7 +414,6 @@ const SidebarGroupAction = React.forwardRef<
       data-sidebar="group-action"
       className={cn(
         "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         className
@@ -560,7 +559,6 @@ const SidebarMenuAction = React.forwardRef<
       data-sidebar="menu-action"
       className={cn(
         "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
@@ -603,7 +601,6 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])

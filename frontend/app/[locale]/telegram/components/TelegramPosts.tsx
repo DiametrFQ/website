@@ -1,9 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import PostList from './PostList';
-import styles from '../styles/page.module.css'; // CHANGED: Import styles for the title
+import styles from '../styles/page.module.css';
 
-// Описание типа для постов
 interface Post {
   title: string;
   link: string;

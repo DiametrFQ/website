@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)] // <--- Serialize есть!
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Post {
     pub title: String,
     pub link: String,

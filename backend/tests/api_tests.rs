@@ -1,15 +1,15 @@
 use actix_web::{App, http, test, web};
 use async_trait::async_trait;
 use backend::{
-    config::config_services,
-    errors::{AppError, AppResult},
-    spotify::services::SpotifyService,
-    telegram::{models::Post, services::RssFetcher},
+    common::errors::{AppError, AppResult},
+    endpoints::{
+        config::config_services,
+        spotify::services::SpotifyService,
+        telegram::{models::Post, services::RssFetcher},
+    },
 };
 use bytes::Bytes;
 use std::sync::{Arc, Mutex};
-
-// --- МОКИ ДЛЯ TELEGRAM ---
 
 #[derive(Clone)]
 struct MockSuccessFetcher;
@@ -42,7 +42,7 @@ impl RssFetcher for MockInternalErrorFetcher {
     }
 }
 
-// --- ИНТЕГРАЦИОННЫЕ ТЕСТЫ API (TELEGRAM) ---
+// --- Integration tests API (TELEGRAM) ---
 
 #[actix_web::test]
 async fn test_telegram_success_returns_200_with_posts() {
@@ -97,47 +97,36 @@ async fn test_telegram_internal_error_returns_500() {
     assert_eq!(resp.status(), http::StatusCode::INTERNAL_SERVER_ERROR);
 }
 
-// --- ИНТЕГРАЦИОННЫЙ ТЕСТ API (SPOTIFY) ---
+// --- Integration tests API (SPOTIFY) ---
 
 #[actix_web::test]
 async fn test_spotify_stream_returns_sse_data() {
-    // 1. Создаем мок-сервис Spotify. В реальном приложении он бы ходил в API,
-    // а в тесте он просто возвращает заранее заданные данные.
-    // Нам даже не нужно реализовывать для него трейт, т.к. мы используем конкретный тип.
     let mock_spotify_service =
         SpotifyService::new("test_id".into(), "test_secret".into(), "test_token".into());
 
-    // 2. Оборачиваем его в Mutex и web::Data, как в main.rs
     let spotify_data = web::Data::new(Mutex::new(mock_spotify_service));
 
-    // 3. Инициализируем тестовое приложение и ПРЕДОСТАВЛЯЕМ ДАННЫЕ
     let app = test::init_service(
         App::new()
-            // Вот ключевая строка, которая исправляет ошибку!
             .app_data(spotify_data.clone())
             .configure(config_services),
     )
     .await;
 
-    // 4. Делаем запрос к нашему стриминг-эндпоинту
     let req = test::TestRequest::get()
         .uri("/api/spotify/now_playing_stream")
         .to_request();
 
     let resp = test::call_service(&app, req).await;
 
-    // 5. Проверяем, что ответ успешный и имеет правильный Content-Type
     assert_eq!(resp.status(), http::StatusCode::OK);
     assert_eq!(
         resp.headers().get("content-type").unwrap(),
         "text/event-stream"
     );
 
-    // (Опционально) Можно даже прочитать первый элемент из потока и проверить его содержимое.
-    // Это более сложный тест, но показывает, как работать со стримом.
     let body_bytes = test::read_body(resp).await;
     let body_str = std::str::from_utf8(&body_bytes).unwrap();
 
-    // Ожидаем, что первый ответ будет "не играю", т.к. мок-сервис пустой
     assert!(body_str.contains(r#""isPlaying":false"#));
 }
