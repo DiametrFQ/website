@@ -1,15 +1,15 @@
 use actix_web::{App, http, test, web};
 use async_trait::async_trait;
 use backend::{
-    config::config_services,
-    errors::{AppError, AppResult},
-    spotify::services::SpotifyService,
-    telegram::{models::Post, services::RssFetcher},
+    common::errors::{AppError, AppResult},
+    endpoints::{
+        config::config_services,
+        spotify::services::SpotifyService,
+        telegram::{models::Post, services::RssFetcher},
+    },
 };
 use bytes::Bytes;
 use std::sync::{Arc, Mutex};
-
-// --- МОКИ ДЛЯ TELEGRAM ---
 
 #[derive(Clone)]
 struct MockSuccessFetcher;

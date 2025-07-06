@@ -1,5 +1,5 @@
 use super::models::Post;
-use crate::errors::{AppError, AppResult};
+use crate::common::errors::{AppError, AppResult};
 use async_trait::async_trait;
 use bytes::Bytes;
 use rss::Channel;

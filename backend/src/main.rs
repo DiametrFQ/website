@@ -1,7 +1,7 @@
-use actix_web::middleware::Logger;
-use actix_web::{App, HttpServer, web};
-use backend::config::config_services;
-use backend::{app_state::AppState, spotify::services::SpotifyService};
+use actix_web::{App, HttpServer, middleware::Logger, web};
+use backend::endpoints::{
+    app_state::AppState, config::config_services, spotify::services::SpotifyService,
+};
 use dotenvy::dotenv;
 use std::env;
 use std::panic;

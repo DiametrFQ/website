@@ -1,5 +1,7 @@
-use crate::spotify::services::SpotifyService;
-use crate::telegram::services::{RealRssFetcher, RssFetcher};
+use crate::endpoints::{
+    spotify::services::SpotifyService,
+    telegram::services::{RealRssFetcher, RssFetcher},
+};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 

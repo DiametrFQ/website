@@ -1,6 +1,6 @@
-use crate::{
+use crate::common::errors::AppResult;
+use crate::endpoints::{
     app_state::AppState,
-    errors::AppResult,
     spotify::models::{NowPlayingResponse, NowPlayingStreamData},
 };
 use actix_web::{Error, HttpResponse, Responder, get, web};
@@ -8,8 +8,7 @@ use futures_util::stream::StreamExt;
 use log::{error, info};
 use serde_json;
 use std::time::Duration;
-use tokio::sync::mpsc;
-use tokio::time::interval;
+use tokio::{sync::mpsc, time::interval};
 use tokio_stream::wrappers::ReceiverStream;
 
 #[get("/now_playing")]

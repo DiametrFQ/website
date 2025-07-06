@@ -1,5 +1,5 @@
 use super::models::{NowPlayingResponse, SpotifyErrorResponse, TokenResponse};
-use crate::errors::{AppError, AppResult};
+use crate::common::errors::{AppError, AppResult};
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use log::{error, info, warn};
 use reqwest::StatusCode;
