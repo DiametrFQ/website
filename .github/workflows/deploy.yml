@@ -1,118 +1,81 @@
-name: Build, Package, and Deploy
+name: Build, Push and Deploy
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  build_backend:
-    name: Build Backend Artifact
+  build_images:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up Rust & Cache
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - uses: Swatinem/rust-cache@v2
-      - name: Build Backend Release
-        working-directory: ./backend
-        run: cargo build --verbose --release
-      - name: Upload Backend Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-release
-          path: backend/target/release/backend
-
-  build_frontend:
-    name: Build Frontend Artifact
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up Node.js & Cache
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install Frontend Dependencies
-        working-directory: ./frontend
-        run: npm ci
-      - name: Build Standalone Frontend
-        working-directory: ./frontend
-        run: npm run build
-      - name: Upload Frontend Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-standalone
-          path: |
-            frontend/.next/standalone
-            frontend/public
-            frontend/.next/static
-          
-  package_and_push:
-    name: Package and Push to Docker Hub
-    runs-on: ubuntu-latest
-    needs: [build_backend, build_frontend]
+    strategy:
+      matrix:
+        service: [frontend, backend]
+    outputs:
+      image_name: ${{ steps.image_name.outputs.name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- Скачиваем артефакты ---
-      - name: Download Backend Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-release
-          path: backend/target/release/
-      - name: Make backend executable
-        run: chmod +x backend/target/release/backend
-        
-      - name: Download Frontend Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-standalone
-          path: frontend/
-
-      # --- Пуш в Docker Hub ---
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      
+      - name: Define image name
+        id: image_name
+        run: |
+          if [ "${{ matrix.service }}" == "frontend" ]; then
+            echo "name=${{ secrets.DOCKER_USERNAME }}/website" >> $GITHUB_OUTPUT
+          else
+            echo "name=${{ secrets.DOCKER_USERNAME }}/website-backend" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image for ${{ matrix.service }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service == 'frontend' && 'website' || 'website-backend' }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save Docker image to tar
+        run: docker save ${{ steps.image_name.outputs.name }}:latest -o /tmp/${{ matrix.service }}.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-image
+          path: /tmp/${{ matrix.service }}.tar
+
+  push_images:
+    runs-on: ubuntu-latest
+    needs: build_images
+    strategy:
+      matrix:
+        service: [frontend, backend]
+    steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Backend Docker Image
-        uses: docker/build-push-action@v5
+      - name: Download ${{ matrix.service }} image artifact
+        uses: actions/download-artifact@v4
         with:
-          context: ./backend
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/website-backend:latest
-            ${{ secrets.DOCKER_USERNAME }}/website-backend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          name: ${{ matrix.service }}-image
+          path: /tmp
 
-      - name: Build and Push Frontend Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/website:latest
-            ${{ secrets.DOCKER_USERNAME }}/website:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Load and Push ${{ matrix.service }} Image
+        run: |
+          docker load --input /tmp/${{ matrix.service }}.tar
+          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "(website|website-backend):latest")
+          echo "Pushing image: $IMAGE_NAME"
+          docker push $IMAGE_NAME
 
   deploy_to_server:
-    name: Deploy to Server
     runs-on: ubuntu-latest
-    needs: package_and_push
+    needs: push_images
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -123,9 +86,10 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./configs"
+          source: "./docker-compose.yml,./nginx.prod.conf,./prometheus.yml,./grafana-provisioning"
           target: "/myPath"
-          
+          strip_components: 1
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -139,14 +103,10 @@ jobs:
             export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
             export SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN }}
 
-            echo "Logging in to Docker Hub..."
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             
-            echo "Pulling latest images..."
-            docker-compose pull
+            docker-compose -f /myPath/docker-compose.yml pull
             
-            echo "Starting services..."
-            docker-compose up -d --remove-orphans
+            docker-compose -f /myPath/docker-compose.yml up -d --force-recreate --remove-orphans
             
-            echo "Cleaning up old images..."
             docker system prune -af
