@@ -40,7 +40,6 @@ pub async fn fetch_telegram_posts(fetcher: &(dyn RssFetcher + Sync)) -> AppResul
 
     let channel = Channel::read_from(&content[..]).map_err(|e| {
         log::error!("Failed to parse RSS feed: {}", e);
-        // Если не смогли распарсить, тоже делаем fallback
         AppError::ServiceErrorWithFallback
     })?;
 
@@ -108,7 +107,6 @@ mod tests {
     use bytes::Bytes;
     use std::io;
 
-    // Моковая структура для тестов
     struct MockRssFetcher {
         response: AppResult<Bytes>,
     }
@@ -197,7 +195,7 @@ mod tests {
 
     #[test]
     fn test_image_url_extraction() {
-        // --- Тест 1: Картинка в <description> ---
+        // --- Test 1: Image in <description> ---
         let mut item1 = rss::Item::default();
         item1.set_description(String::from(
             "<p>text</p><img src='http://test.com/image.png' />",
@@ -206,7 +204,7 @@ mod tests {
         assert!(result1.is_some(), "Test 1 failed");
         assert_eq!(result1.unwrap(), "http://test.com/image.png");
 
-        // --- Тест 2: Картинка в <content> ---
+        // --- Test 2: Image in <content> ---
         let mut item2 = rss::Item::default();
         item2.set_content(String::from("<img src=\"https://another.com/image.gif\">"));
         let result2 = extract_image_url(&item2);
@@ -216,9 +214,9 @@ mod tests {
         );
         assert_eq!(result2.unwrap(), "https://another.com/image.gif");
 
-        // --- Тест 3: Картинка из <enclosure> (имеет приоритет) ---
+        // --- Test 3: Image from <enclosure>  ---
         let mut item3 = rss::Item::default();
-        item3.set_content(String::from("<img src=\"ignored.png\">")); // Картинка для игнорирования
+        item3.set_content(String::from("<img src=\"ignored.png\">"));
         let mut enclosure = rss::Enclosure::default();
         enclosure.set_url("http://priority.com/enclosure.jpg".to_string());
         enclosure.set_mime_type("image/jpeg".to_string());
@@ -231,7 +229,7 @@ mod tests {
             "Enclosure should have priority"
         );
 
-        // --- Тест 4: Нет картинки ---
+        // --- Test 4: No image ---
         let item_no_image = rss::Item::default();
         assert!(extract_image_url(&item_no_image).is_none(), "Test 4 failed");
     }

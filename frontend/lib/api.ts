@@ -6,7 +6,7 @@ export class HttpError extends Error {
     super(message || `Request failed with status ${status}`);
     this.name = 'HttpError';
     this.status = status;
-    this.data = data; // Тело ответа с ошибкой от бэкенда
+    this.data = data;
   }
 }
 
