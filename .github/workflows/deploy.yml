@@ -32,11 +32,9 @@ jobs:
       - name: Build Docker image for ${{ matrix.service }}
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./${{ matrix.service }}/Dockerfile
-          push: false
-          load: true
-          tags: ${{ steps.image_name.outputs.name }}:latest
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service == 'frontend' && 'website' || 'website-backend' }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
