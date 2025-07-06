@@ -28,3 +28,10 @@ tokio-stream = "0.1.17"
 [[test]]
 name = "api_tests"
 path = "tests/api_tests.rs"
+
+[profile.release]
+strip = true
+panic = "abort"
+opt-level = "z"
+# lto = true
+# codegen-units = 1
