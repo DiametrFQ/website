@@ -1,95 +1,115 @@
-name: Build, Push and Deploy
+name: Build, Push, and Deploy (5 Separate Jobs)
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  build_images:
+  build_frontend_image:
+    name: 1. Build Frontend Image
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [frontend, backend]
-    outputs:
-      image_name: ${{ steps.image_name.outputs.name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
-      - name: Define image name
-        id: image_name
-        run: |
-          if [ "${{ matrix.service }}" == "frontend" ]; then
-            echo "name=${{ secrets.DOCKER_USERNAME }}/website" >> $GITHUB_OUTPUT
-          else
-            echo "name=${{ secrets.DOCKER_USERNAME }}/website-backend" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build Docker image for ${{ matrix.service }}
+      - name: Build image and save as artifact
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.service }}
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service == 'frontend' && 'website' || 'website-backend' }}:latest
+          context: ./frontend
+          push: false
+          load: true
+          tags: diametrfq/website:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Save Docker image to tar
-        run: docker save ${{ steps.image_name.outputs.name }}:latest -o /tmp/${{ matrix.service }}.tar
-
-      - name: Upload Docker image artifact
+      - name: Save image to tar
+        run: docker save diametrfq/website:latest -o /tmp/frontend.tar
+      - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.service }}-image
-          path: /tmp/${{ matrix.service }}.tar
+          name: frontend-image
+          path: /tmp/frontend.tar
 
-  push_images:
+  build_backend_image:
+    name: 2. Build Backend Image
     runs-on: ubuntu-latest
-    needs: build_images
-    strategy:
-      matrix:
-        service: [frontend, backend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build image and save as artifact
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: false
+          load: true
+          tags: diametrfq/website-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Save image to tar
+        run: docker save diametrfq/website-backend:latest -o /tmp/backend.tar
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-image
+          path: /tmp/backend.tar
+
+  push_frontend_image:
+    name: 3. Push Frontend Image
+    runs-on: ubuntu-latest
+    needs: build_frontend_image
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Download ${{ matrix.service }} image artifact
+      - name: Download frontend image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.service }}-image
+          name: frontend-image
           path: /tmp
-
-      - name: Load and Push ${{ matrix.service }} Image
+      - name: Load and Push Frontend Image
         run: |
-          docker load --input /tmp/${{ matrix.service }}.tar
-          IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "(website|website-backend):latest")
-          echo "Pushing image: $IMAGE_NAME"
-          docker push $IMAGE_NAME
+          docker load --input /tmp/frontend.tar
+          docker push diametrfq/website:latest
+
+  push_backend_image:
+    name: 4. Push Backend Image
+    runs-on: ubuntu-latest
+    needs: build_backend_image
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Download backend image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-image
+          path: /tmp
+      - name: Load and Push Backend Image
+        run: |
+          docker load --input /tmp/backend.tar
+          docker push diametrfq/website-backend:latest
 
   deploy_to_server:
+    name: 5. Deploy to Server
     runs-on: ubuntu-latest
-    needs: push_images
+    needs: [push_frontend_image, push_backend_image]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Transfer Files to Server
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./nginx.prod.conf,./prometheus.yml,./grafana-provisioning"
+          source: "./docker-compose.yml,./configs,./nginx.prod.conf"
           target: "/myPath"
-          strip_components: 1
-
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -102,11 +122,15 @@ jobs:
             export SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
             export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
             export SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-
+            
+            echo "Logging in to Docker Hub..."
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             
-            docker-compose -f /myPath/docker-compose.yml pull
+            echo "Pulling latest images..."
+            docker-compose pull
             
-            docker-compose -f /myPath/docker-compose.yml up -d --force-recreate --remove-orphans
+            echo "Starting services..."
+            docker-compose up -d --force-recreate --remove-orphans
             
+            echo "Cleaning up old images..."
             docker system prune -af
