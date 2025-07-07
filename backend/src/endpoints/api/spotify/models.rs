@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Serialize)] 
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NowPlayingResponse {
     pub item: Option<Item>,
     pub is_playing: bool,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)] 
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Item {
     pub name: String,
     pub artists: Vec<Artist>,
@@ -14,22 +14,22 @@ pub struct Item {
     pub external_urls: ExternalUrls,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)] 
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Artist {
     pub name: String,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)] 
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Album {
     pub images: Vec<Image>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)] 
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Image {
     pub url: String,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)] 
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ExternalUrls {
     pub spotify: String,
 }

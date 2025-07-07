@@ -1,8 +1,9 @@
 use super::models::{NowPlayingResponse, SpotifyErrorResponse, TokenResponse};
-use crate::common::errors::{AppError, AppResult};
+use super::errors::{AppError, AppResult};
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use log::{error, info, warn};
 use reqwest::StatusCode;
+use std::env;
 
 #[derive(Clone)]
 pub struct SpotifyService {
@@ -13,11 +14,11 @@ pub struct SpotifyService {
 }
 
 impl SpotifyService {
-    pub fn new(client_id: String, client_secret: String, refresh_token: String) -> Self {
+    pub fn new() -> Self {
         Self {
-            client_id,
-            client_secret,
-            refresh_token,
+            client_id: env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID must be set"),
+            client_secret: env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET must be set"),
+            refresh_token: env::var("SPOTIFY_REFRESH_TOKEN").expect("SPOTIFY_REFRESH_TOKEN must be set"),
             access_token: None,
         }
     }

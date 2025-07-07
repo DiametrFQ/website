@@ -1,7 +1,8 @@
 use actix_web::{HttpResponse, get, http::header::ContentType, web};
 
+use super::errors::AppError;
 use super::services;
-use crate::{common::errors::AppError, endpoints::app_state::AppState};
+use crate::endpoints::app_state::AppState;
 
 #[get("")]
 pub async fn get_telegram_posts_handler(state: web::Data<AppState>) -> HttpResponse {
