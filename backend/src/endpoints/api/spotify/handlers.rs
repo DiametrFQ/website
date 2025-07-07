@@ -1,8 +1,6 @@
-use crate::common::errors::AppResult;
-use crate::endpoints::{
-    app_state::AppState,
-    spotify::models::{NowPlayingResponse, NowPlayingStreamData},
-};
+use super::errors::AppResult;
+use super::models::{NowPlayingResponse, NowPlayingStreamData};
+use crate::endpoints::app_state::AppState;
 use actix_web::{Error, HttpResponse, Responder, get, web};
 use futures_util::stream::StreamExt;
 use log::{error, info};

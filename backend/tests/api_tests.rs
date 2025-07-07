@@ -3,9 +3,11 @@ use async_trait::async_trait;
 use backend::{
     common::errors::{AppError, AppResult},
     endpoints::{
+        api::{
+            spotify::services::SpotifyService,
+            telegram::{models::Post, services::RssFetcher},
+        },
         config::config_services,
-        spotify::services::SpotifyService,
-        telegram::{models::Post, services::RssFetcher},
     },
 };
 use bytes::Bytes;
@@ -101,8 +103,7 @@ async fn test_telegram_internal_error_returns_500() {
 
 #[actix_web::test]
 async fn test_spotify_stream_returns_sse_data() {
-    let mock_spotify_service =
-        SpotifyService::new("test_id".into(), "test_secret".into(), "test_token".into());
+    let mock_spotify_service = SpotifyService::new();
 
     let spotify_data = web::Data::new(Mutex::new(mock_spotify_service));
 

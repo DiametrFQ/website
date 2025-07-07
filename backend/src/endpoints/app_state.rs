@@ -1,4 +1,4 @@
-use crate::endpoints::{
+use crate::endpoints::api::{
     spotify::services::SpotifyService,
     telegram::services::{RealRssFetcher, RssFetcher},
 };
@@ -11,9 +11,9 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(spotify_service: SpotifyService) -> Self {
+    pub fn new() -> Self {
         Self {
-            spotify_service: Mutex::new(spotify_service),
+            spotify_service: Mutex::new(SpotifyService::new()),
             rss_fetcher: Arc::new(RealRssFetcher),
         }
     }

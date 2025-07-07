@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     image: diametrfq/website:latest
@@ -112,7 +110,7 @@ services:
     image: grafana/loki:2.9.2
     container_name: loki
     volumes:
-      - ./configs/logging/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./configs/logging/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki-storage:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:

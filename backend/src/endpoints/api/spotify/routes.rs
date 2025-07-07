@@ -1,4 +1,4 @@
-use crate::endpoints::spotify::handlers;
+use super::api::spotify::handlers;
 use actix_web::web;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
