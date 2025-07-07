@@ -1,4 +1,4 @@
-name: Build, Push, and Deploy (5 Separate Jobs)
+name: Build, Push, and Deploy
 
 on:
   pull_request:
@@ -23,6 +23,7 @@ jobs:
           tags: diametrfq/website:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          cache-scope: frontend-build-cache
       - name: Save image to tar
         run: docker save diametrfq/website:latest -o /tmp/frontend.tar
       - name: Upload image artifact
@@ -46,8 +47,10 @@ jobs:
           push: false
           load: true
           tags: diametrfq/website-backend:latest
+          # ПРАВИЛЬНОЕ кэширование: только GHA и с уникальным именем
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          cache-scope: backend-build-cache # <--- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ
       - name: Save image to tar
         run: docker save diametrfq/website-backend:latest -o /tmp/backend.tar
       - name: Upload image artifact
