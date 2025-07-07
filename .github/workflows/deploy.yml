@@ -1,4 +1,4 @@
-name: Build, Push, and Deploy (5 Separate Jobs)
+name: Build, Push, and Deploy with Image Caching
 
 on:
   push:
@@ -12,23 +12,34 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Download latest frontend image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-image-latest
+          path: /tmp
+        continue-on-error: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build image and save as artifact
+        
+      - name: Build image using cache from artifact
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: false
           load: true
           tags: diametrfq/website:latest
-          cache-from: type=gha
+          cache-from: type=docker,src=/tmp/frontend.tar
           cache-to: type=gha,mode=max
-      - name: Save image to tar
+
+      - name: Save new image to tar
         run: docker save diametrfq/website:latest -o /tmp/frontend.tar
-      - name: Upload image artifact
+        
+      - name: Upload new image artifact for next run
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-image
+          name: frontend-image-latest
           path: /tmp/frontend.tar
 
   build_backend_image:
@@ -37,23 +48,34 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Download latest backend image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-image-latest
+          path: /tmp
+        continue-on-error: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build image and save as artifact
+        
+      - name: Build image using cache from artifact
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: false
           load: true
           tags: diametrfq/website-backend:latest
-          cache-from: type=gha
+          cache-from: type=docker,src=/tmp/backend.tar
           cache-to: type=gha,mode=max
-      - name: Save image to tar
+
+      - name: Save new image to tar
         run: docker save diametrfq/website-backend:latest -o /tmp/backend.tar
-      - name: Upload image artifact
+        
+      - name: Upload new image artifact for next run
         uses: actions/upload-artifact@v4
         with:
-          name: backend-image
+          name: backend-image-latest
           path: /tmp/backend.tar
 
   push_frontend_image:
