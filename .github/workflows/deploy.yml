@@ -37,7 +37,7 @@ jobs:
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-image
+          name: frontend-image-${{ github.run_number }}
           path: /tmp/frontend.tar
 
   build_backend_image:
@@ -102,7 +102,7 @@ jobs:
       - name: Download backend image artifact
         uses: actions/download-artifact@v4
         with:
-          name: backend-image
+          name: backend-image-${{ github.run_number }}
           path: /tmp
       - name: Load and Push Backend Image
         run: |
