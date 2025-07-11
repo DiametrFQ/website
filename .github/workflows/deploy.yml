@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  DOCKER_BUILD_RECORD_RETENTION_DAYS: 1
+  BUILDX_CACHE_MAX_SIZE: 5GB
+  ACTIONS_CACHE_KEY_PREFIX: v1
+
 jobs:
   build_frontend_image:
     name: 1. Build Frontend Image
@@ -21,8 +26,12 @@ jobs:
           push: false
           load: true
           tags: diametrfq/website:latest
-          cache-from: type=gha,scope=frontend-build
-          cache-to: type=gha,mode=max,scope=frontend-build
+          cache-from: |
+            type=gha,scope=frontend-build-${{ hashFiles('frontend/**') }}
+            type=gha,scope=frontend-build
+          cache-to: |
+            type=gha,mode=max,scope=frontend-build-${{ hashFiles('frontend/**') }}
+            type=gha,mode=min,scope=frontend-build
       - name: Save image to tar
         run: docker save diametrfq/website:latest -o /tmp/frontend.tar
       - name: Upload image artifact
@@ -46,14 +55,18 @@ jobs:
           push: false
           load: true
           tags: diametrfq/website-backend:latest
-          cache-from: type=gha,scope=backend-build
-          cache-to: type=gha,mode=max,scope=backend-build
+          cache-from: |
+            type=gha,scope=backend-build-${{ hashFiles('backend/**') }}
+            type=gha,scope=backend-build
+          cache-to: |
+            type=gha,mode=max,scope=backend-build-${{ hashFiles('backend/**') }}
+            type=gha,mode=min,scope=backend-build
       - name: Save image to tar
         run: docker save diametrfq/website-backend:latest -o /tmp/backend.tar
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-image
+          name: backend-image-${{ github.run_number }}
           path: /tmp/backend.tar
 
   push_frontend_image:
@@ -69,7 +82,7 @@ jobs:
       - name: Download frontend image artifact
         uses: actions/download-artifact@v4
         with:
-          name: frontend-image
+          name: frontend-image-${{ github.run_number }}
           path: /tmp
       - name: Load and Push Frontend Image
         run: |
@@ -134,3 +147,18 @@ jobs:
             
             echo "Cleaning up old images..."
             docker system prune -af
+
+  cleanup_artifacts:
+    name: 6. Cleanup Artifacts
+    runs-on: ubuntu-latest
+    needs: [deploy_to_server]
+    if: always()
+    steps:
+      - name: Delete build artifacts from current run
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            frontend-image-${{ github.run_number }}
+            backend-image-${{ github.run_number }}
+          useGlob: false
+          failOnError: false
