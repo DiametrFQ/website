@@ -15,5 +15,9 @@
         "telegram":{
             "title": "Telegram"
         }
+    },
+    "ContactPage": {
+      "title": "Свяжитесь со мной",
+      "subtitle": "Вот лучшие способы для связи."
     }
 }

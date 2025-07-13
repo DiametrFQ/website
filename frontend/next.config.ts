@@ -42,6 +42,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'i.scdn.co',
       },
+            {
+        protocol: 'https',
+        hostname: 'cdn-icons-png.flaticon.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static-00.iconduck.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.worldvectorlogo.com',
+      },
     ],
   },
 
