@@ -15,5 +15,9 @@
         "telegram":{
             "title": "Telegram"
         }
+    },
+    "ContactPage": {
+      "title": "Get in Touch",
+      "subtitle": "Here is where you can find me."
     }
 }
