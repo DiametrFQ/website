@@ -2,7 +2,7 @@
 
 import { NextIntlClientProvider, AbstractIntlMessages } from 'next-intl';
 import { ThemeProvider } from "@/components/theme-provider";
-import { Sidebar, SidebarInset, SidebarProvider } from '@/components/ui/sidebar7';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar7';
 import StoreProvider from "@/store/StoreProvider";
 import Header from '@/app/_components/Header/Header';
 import AppSidebar from '@/app/_components/Sidebar/Sidebar'; // Используем новое имя
