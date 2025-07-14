@@ -9,7 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar, // 1. ИМПОРТИРУЕМ ХУК useSidebar
+  useSidebar,
 } from '@/components/ui/sidebar7';
 import { DropdownMenu, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { useLocale, useTranslations } from 'next-intl';
@@ -29,17 +29,15 @@ const items = [
 
 const onlyEng = items.filter((item) => item.title !== 'telegram').map((item) => item.title);
 
+//              ↓↓↓ ВОТ ГЛАВНОЕ ИСПРАВЛЕНИЕ ↓↓↓
+// Убираем все пропсы из сигнатуры. Компонент ничего не принимает.
 export default function AppSidebar() {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('SidebarNavigation');
-
-  // 2. ПОЛУЧАЕМ КОНТЕКСТ САЙДБАРА
   const { isMobile, setOpenMobile } = useSidebar();
 
-  // 3. СОЗДАЕМ ОБРАБОТЧИК КЛИКА
   const handleLinkClick = () => {
-    // Закрываем сайдбар только если мы на мобильном устройстве
     if (isMobile) {
       setOpenMobile(false);
     }
@@ -58,33 +56,31 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                (locale === 'en' && onlyEng.includes(item.title)) ||
-                (locale === 'ru')
-              ) && (
-                <SidebarMenuItem key={item.title} className="stroke-pink-700">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link
-                          href={`/${locale}${item.url}`}
-                          className={
-                            pathname === `/${locale}${item.url}` ||
-                            (item.url === '/' && pathname === `/${locale}`)
-                              ? 'bg-accent text-accent-foreground'
-                              : ''
-                          }
-                          // 4. ПРИМЕНЯЕМ ОБРАБОТЧИК КО ВСЕМ ССЫЛКАМ
-                          onClick={handleLinkClick}
-                        >
-                          <span className="material-symbols-outlined">
-                            {item.iconName}
-                          </span>
-                          <span>{t(`${item.title}.title`)}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                  </DropdownMenu>
-                </SidebarMenuItem>
+                ((locale === 'en' && onlyEng.includes(item.title)) || locale === 'ru') && (
+                  <SidebarMenuItem key={item.title} className="stroke-pink-700">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuButton asChild>
+                          <Link
+                            href={`/${locale}${item.url}`}
+                            className={
+                              pathname === `/${locale}${item.url}` ||
+                              (item.url === '/' && pathname === `/${locale}`)
+                                ? 'bg-accent text-accent-foreground'
+                                : ''
+                            }
+                            onClick={handleLinkClick}
+                          >
+                            <span className="material-symbols-outlined">
+                              {item.iconName}
+                            </span>
+                            <span>{t(`${item.title}.title`)}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </DropdownMenuTrigger>
+                    </DropdownMenu>
+                  </SidebarMenuItem>
+                )
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

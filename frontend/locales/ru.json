@@ -28,5 +28,10 @@
         "steam": "Steam",
         "discord": "Discord"
       }
+    },
+    "Metadata": {
+        "defaultTitle": "Дмитрий Хохлов — Fullstack Разработчик",
+        "template": "Дмитрий Хохлов",
+        "defaultDescription": "Портфолио fullstack-разработчика. Специализируюсь на React, Next.js и TypeScript. Открыт к предложениям о работе."
     }
 }
