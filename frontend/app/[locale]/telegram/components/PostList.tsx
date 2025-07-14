@@ -37,7 +37,8 @@ const PostList: React.FC<{ posts: Post[] }> = ({ posts }) => {
     <div className={styles['post-list']}>
       {posts.map((post, index) => (
         <PostItem key={index} post={post} />
-      ))}\n    </div>
+      ))}
+    </div>
   );
 };
 

@@ -18,6 +18,15 @@
     },
     "ContactPage": {
       "title": "Свяжитесь со мной",
-      "subtitle": "Вот лучшие способы для связи."
+      "subtitle": "Вот где вы можете меня найти.",
+      "logoNames": {
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "email": "Почта",
+        "workEmail": "Рабочая почта",
+        "telegram": "Телеграм",
+        "steam": "Steam",
+        "discord": "Discord"
+      }
     }
 }

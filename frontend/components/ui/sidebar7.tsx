@@ -10,7 +10,13 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { 
+  Sheet, 
+  SheetContent,   
+  SheetHeader,
+  SheetTitle,
+  SheetDescription
+} from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -18,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -169,11 +176,11 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const sidebarContext = useSidebar();
 
-    if (isMobile) {
+    if (sidebarContext.isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <Sheet open={sidebarContext.openMobile} onOpenChange={sidebarContext.setOpenMobile} {...props}>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
@@ -185,6 +192,13 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Основная навигация</SheetTitle>
+              <SheetDescription>
+                Выберите страницу для перехода.
+              </SheetDescription>
+            </SheetHeader>
+            
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
         </Sheet>
@@ -195,11 +209,12 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "group peer text-sidebar-foreground md:block transition-all duration-300 ease-in-out",
-          state === "collapsed" ? "w-[--sidebar-width-icon]" : "w-[--sidebar-width]",
+          "group peer hidden text-sidebar-foreground transition-all duration-300 ease-in-out md:block",
+          "data-[state=expanded]:w-[--sidebar-width]",
+          "data-[state=collapsed]:w-[--sidebar-width-icon]",
           className
         )}
-        data-state={state}
+        data-state={sidebarContext.state}
         data-variant={variant}
         data-side={side}
       >

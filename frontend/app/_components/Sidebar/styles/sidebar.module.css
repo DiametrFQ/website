@@ -1,14 +1,18 @@
-/* .sidebar {
-  position: relative;
-  left: -250px;
-  width: 250px;
-  background: #222;
-  color: white;
-  padding: 20px;
-  transition: left 0.3s ease-in-out;
+/* По умолчанию (mobile-first) скрываем десктопный хедер в сайдбаре */
+.desktopHeaderContainer {
+  display: none;
 }
 
-.sidebar.open {
-  left: 0;
-} */
+/* Показываем его только на экранах шире 768px */
+@media (min-width: 769px) {
+  .desktopHeaderContainer {
+    display: block; /* Показываем контейнер */
+  }
 
+  /* Стилизуем сам SidebarHeader для правильного расположения */
+  .desktopHeaderContainer > header {
+    display: flex;
+    justify-content: flex-end; /* Двигаем кнопку вправо */
+    padding: 0.5rem;
+  }
+}

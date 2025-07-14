@@ -1,4 +1,3 @@
-/* Внешний контейнер. Просто держит все в углу. */
 .widgetContainer {
   position: fixed;
   bottom: 2rem;
@@ -8,7 +7,6 @@
   align-items: center;
 }
 
-/* Этот блок будет анимироваться */
 .widgetAnimator {
   display: flex;
   border-radius: 16px;
@@ -20,37 +18,29 @@
 }
 
 .widgetAnimator.hidden {
-  /* Мы не просто скрываем его, а сдвигаем, чтобы кнопка осталась на месте */
-  transform: translateX(calc(100% - 48px)); /* 48px - ширина кнопки */
+  transform: translateX(calc(100% - 48px));
 }
 
-/* Контент внутри. Добавляем отступ справа, чтобы освободить место для кнопки */
 .widgetContent {
   display: flex;
   align-items: center;
   padding: 8px;
-  /* Важно: добавляем отступ справа, равный ширине кнопки, чтобы текст не заезжал под нее */
-  padding-right: 56px; /* 48px (ширина кнопки) + 8px (зазор) */
+  padding-right: 56px;
   min-height: 72px;
 }
 
-/* --- КЛЮЧЕВЫЕ ИЗМЕНЕНИЯ ЗДЕСЬ --- */
 .toggleButton {
-  /* Возвращаем позиционирование, чтобы z-index работал */
   position: relative; 
-  /* Поднимаем кнопку над контентом */
   z-index: 2; 
 
-  /* Сдвигаем кнопку влево на ее собственную ширину, чтобы она наложилась на .widgetAnimator */
   margin-left: -48px;
   
-  /* Остальные стили для внешнего вида */
   display: flex;
   align-items: center;
   justify-content: center;
   width: 48px;
   height: 72px;
-  background-color: rgba(0,0,0,0.2); /* Делаем чуть темнее для контраста */
+  background-color: rgba(0,0,0,0.2);
   border: none;
   color: white;
   cursor: pointer;
@@ -75,14 +65,11 @@
   transform: rotate(180deg);
 }
 
-
-/* --- Остальные стили без изменений --- */
 .notPlaying {
   display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 500;
-  /* Убедимся, что и этот блок имеет отступ */
   padding-right: 56px; 
 }
 
@@ -133,4 +120,25 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .widgetContainer {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .widgetContent {
+    min-height: 64px;
+    padding-right: 48px;
+  }
+
+  .albumArt {
+    width: 48px;
+    height: 48px;
+  }
+
+  .toggleButton {
+     height: 64px;
+  }
 }

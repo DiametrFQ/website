@@ -58,6 +58,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.worldvectorlogo.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn*.cdn-telegram.org',
+      },
     ],
   },
 
