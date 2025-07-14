@@ -28,5 +28,10 @@
             "steam": "Steam",
             "discord": "Discord"
         }
+    },
+    "Metadata": {
+        "defaultTitle": "Dmitry Khokhlov — Fullstack Developer",
+        "template": "Dmitry Khokhlov",
+        "defaultDescription": "Portfolio of a fullstack developer Dmitry Khokhlov. Specializing in React, Next.js, and TypeScript. Open to job opportunities."
     }
 }

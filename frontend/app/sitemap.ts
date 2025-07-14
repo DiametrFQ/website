@@ -1,28 +1,18 @@
-export default async function sitemap() {
-    return [ 
-        {
-            url: 'https://diametrfq/about',
-            lastModified: new Date()
-        },
-        {
-            url: 'https://diametrfq/contact',
-            lastModified: new Date()
-        },
-        {
-            url: 'https://diametrfq/dashboard',
-            lastModified: new Date()
-        },
-        {
-            url: 'https://diametrfq/portfolio',
-            lastModified: new Date()
-        },
-        {
-            url: 'https://diametrfq/telegram',
-            lastModified: new Date()
-        },
-        {
-            url: 'https://diametrfq/cats',
-            lastModified: new Date()
-        },
-    ]
+import { MetadataRoute } from 'next';
+import { locales } from '@/types/i18n';
+
+// Обязательно укажите здесь ваш настоящий домен!
+const BASE_URL = 'https://diametrfq.ru';
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const routes = ['/', '/about', '/contact', '/portfolio', '/telegram'];
+
+  const sitemapEntries = routes.flatMap((route) =>
+    locales.map((locale) => ({
+      url: `${BASE_URL}/${locale}${route === '/' ? '' : route}`,
+      lastModified: new Date(),
+    }))
+  );
+
+  return sitemapEntries;
 }

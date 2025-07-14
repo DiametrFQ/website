@@ -12,7 +12,7 @@ export default function ResumePage() {
     <div className={styles.container}> 
       <header className={styles.header}>
         <h1>Хохлов Дмитрий</h1>
-        <p>Frontend Developer (React)</p>
+        <p>FullStack Developer (TypeScript, Rust)</p>
         <button onClick={() => setShowContact(!showContact)} className={styles.contactButton}>
           {showContact ? 'Скрыть контакты' : 'Показать контакты'}
         </button>
@@ -30,7 +30,7 @@ export default function ResumePage() {
           <section>
             <h2>Обо мне</h2>
             <p>
-              Я опытный frontend разработчик с более чем четырехлетним опытом в создании
+              Я опытный FullStack разработчик с более чем четырехлетним опытом в создании
               эффективных веб-приложений. Мои навыки охватывают весь цикл разработки, от концепции и дизайна до реализации и поддержки.
             </p>
             <p>
