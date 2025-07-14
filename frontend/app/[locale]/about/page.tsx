@@ -62,27 +62,11 @@ export default function ResumePage() {
         
         <aside className={styles.sidebar}>
           <div className={styles.statsImages}>
-            {/* These images might look better on dark theme with a subtle filter or background */}
-            <Image src="https://www.codewars.com/users/DiametrFQ/badges/small" width={300} height={54} alt='Codewars stats' />
-            <Image src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" width={300} height={150} alt="GitHub Streak" />
-            <Image src="https://github-readme-stats.vercel.app/api/top-langs/?username=DiametrFQ&layout=donut-vertical&theme=tokyonight" width={300} height={450} alt="GitHub Lengs" />
+            <Image src="https://www.codewars.com/users/DiametrFQ/badges/small" width={300} height={54} alt='Codewars stats' unoptimized/>
+            <Image src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" width={300} height={150} alt="GitHub Streak" unoptimized/>
+            <Image src="https://github-readme-stats.vercel.app/api/top-langs/?username=DiametrFQ&layout=donut-vertical&theme=tokyonight" width={300} height={450} alt="GitHub Lengs" unoptimized />
           </div>
         </aside>
-      </div>
-
-      <div className={styles.connect}>
-        📫 Connect with me:<br />
-        <div className={styles.socialLinks}>
-          <a href="https://t.me/diametrfq" target="_blank" rel="noopener noreferrer">
-            <Image className={styles.socialIcon} src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram link" width={40} height={40}/>
-          </a>
-          <a href="https://linkedin.com/in/diametrfq" target="_blank" rel="noopener noreferrer">
-            <Image className={styles.socialIcon} src="https://static-00.iconduck.com/assets.00/linkedin-icon-1024x1024-net2o24e.png" alt="LinkedIn link" width={40} height={40}/>
-          </a>
-          <a href="mailto:hohlov.03@inbox.ru" target="_blank" rel="noopener noreferrer">
-            <Image className={styles.socialIcon} src="https://cdn.pixabay.com/photo/2016/06/13/17/30/mail-1454731_1280.png" alt="email link" width={40} height={40}/>
-          </a>
-        </div>
       </div>
     </div>
   );

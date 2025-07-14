@@ -18,6 +18,15 @@
     },
     "ContactPage": {
       "title": "Get in Touch",
-      "subtitle": "Here is where you can find me."
+      "subtitle": "Here is where you can find me.",
+      "logoNames": {
+            "github": "GitHub",
+            "linkedin": "LinkedIn",
+            "email": "Email",
+            "workEmail": "Work Email",
+            "telegram": "Telegram",
+            "steam": "Steam",
+            "discord": "Discord"
+        }
     }
 }

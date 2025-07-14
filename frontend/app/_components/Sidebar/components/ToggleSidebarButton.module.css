@@ -1,0 +1,13 @@
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.toggleButton:hover {
+  background-color: var(--accent);
+}

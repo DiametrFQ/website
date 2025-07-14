@@ -6,35 +6,41 @@ import styles from './page.module.css';
 
 const contacts = [
   {
-    name: 'Telegram',
+    name: 'telegram',
     handle: '@diametrfq',
     url: 'https://t.me/diametrfq',
     iconUrl: '/logo/telegram.svg',
   },
   {
-    name: 'LinkedIn',
+    name: 'linkedin',
     handle: 'Dmitry Khokhlov',
     url: 'https://www.linkedin.com/in/diametrfq',
     iconUrl: '/logo/linkedin.svg',
   },
   {
-    name: 'GitHub',
+    name: 'github',
     handle: 'DiametrFQ',
     url: 'https://github.com/DiametrFQ',
-    iconUrl: 'https://cdn.worldvectorlogo.com/logos/github-icon-1.svg',
+    iconUrl: '/logo/github.png',
     themeBehavior: 'invertOnDark',
   },
   {
-    name: 'Email',
+    name: 'email',
     handle: 'hohlov.03@inbox.ru',
     url: 'mailto:hohlov.03@inbox.ru',
     iconUrl: '/logo/email.png',
   },
   {
-    name: 'Steam',
+    name: 'steam',
     handle: 'diametrfq',
     url: 'https://steamcommunity.com/id/diametrfq/',
     iconUrl: '/logo/steam.png',
+  },
+    {
+    name: 'workEmail',
+    handle: 'diameterfq@gmail.com',
+    url: 'mailto:diameterfq@gmail.com',
+    iconUrl: '/logo/gmail.svg',
   },
 ];
 
@@ -64,7 +70,7 @@ export default function Contact() {
               />
             </div>
             <div className={styles.cardContent}>
-              <h2 className={styles.cardTitle}>{contact.name}</h2>
+              <h2 className={styles.cardTitle}>{t('logoNames.'+contact.name)}</h2>
               <p className={styles.cardHandle}>{contact.handle}</p>
             </div>
           </a>

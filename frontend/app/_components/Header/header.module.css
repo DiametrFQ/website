@@ -1,42 +1,64 @@
+/* --- Мобильная версия (по умолчанию) --- */
 .header {
-  background-color: var(--background);
+  display: grid;
+  /* Создаем 3 колонки: левая и правая занимают равное место, центральная - по контенту */
+  grid-template-columns: 1fr auto 1fr; 
+  align-items: center;
   padding: 10px 20px;
-  display: flex;
+  background-color: var(--background);
   color: var(--foreground);
-  display: flex;
-  justify-content: space-between;
+}
+
+/* Контейнер для бургера слева */
+.mobileTriggerContainer {
+  justify-self: start; /* Прижимаем к левому краю своей колонки */
+}
+
+/* Ссылка с логотипом по центру */
+.logoLink {
+  justify-self: center; /* Центрируем в своей колонке */
+  text-decoration: none;
+  color: inherit;
 }
 
 .logo {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: 2px;
-  height: 100%;
-  display: flex;
-  align-items: center;
 }
 
-@media (max-width: 420px) {
-  .logo {
-    font-size: 18px;
-  }
-}
-
-.menuButton {
-  border-radius: 16px;
-  border: none;
-  font-size: 2rem;
-  color: white;
-  background-color: none;
-  cursor: pointer;
-  background-color: var(--background);
-  transition: margin 700ms;
-}
-
+/* Контейнер с опциями справа */
 .options {
+  justify-self: end; /* Прижимаем к правому краю своей колонки */
   display: flex;
-  flex-direction: row;
   gap: 5px;
-  justify-content: center;
-  align-items: center;
+}
+
+
+/* --- Десктопная версия (для экранов шире 768px) --- */
+@media (min-width: 769px) {
+  .header {
+    /* Меняем структуру сетки! Теперь у нас 2 колонки */
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem; /* Добавим отступ между лого и опциями */
+  }
+
+  /* Скрываем мобильный бургер, он не нужен на десктопе */
+  .mobileTriggerContainer {
+    display: none;
+  }
+  
+  /* Теперь логотип становится первым элементом в новой сетке */
+  .logoLink {
+    justify-self: start; /* Прижимаем его к левому краю */
+  }
+  
+  .logo {
+      font-size: 2rem; /* Возвращаем полный размер логотипа */
+  }
+  
+  /* Опции остаются прижатыми вправо */
+  .options {
+    justify-self: end;
+  }
 }
