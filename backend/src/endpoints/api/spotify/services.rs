@@ -36,7 +36,8 @@ impl SpotifyService {
 
             let client = reqwest::Client::new();
             let response = client
-                .get("https://api.spotify.com/v1/me/player/currently-playing")
+                // Изменяем эндпоинт, чтобы получить больше данных, включая громкость
+                .get("https://api.spotify.com/v1/me/player?additional_types=track")
                 .header("Authorization", format!("Bearer {}", access_token))
                 .send()
                 .await
@@ -46,7 +47,22 @@ impl SpotifyService {
 
             match status {
                 StatusCode::OK => {
-                    let now_playing_response = response.json::<NowPlayingResponse>().await?;
+                    // Делаем переменную изменяемой, чтобы модифицировать ее
+                    let mut now_playing_response = response.json::<NowPlayingResponse>().await?;
+                    
+                    // === НАША НОВАЯ ЛОГИКА ===
+                    // Проверяем, есть ли информация об устройстве и громкости
+                    if let Some(device) = &now_playing_response.device {
+                        if let Some(volume) = device.volume_percent {
+                            // Если громкость равна 0, считаем, что музыка не играет
+                            if volume == 0 {
+                                now_playing_response.is_playing = false;
+                                info!("Spotify volume is 0, setting is_playing to false.");
+                            }
+                        }
+                    }
+                    // =======================
+
                     return Ok(Some(now_playing_response));
                 }
                 StatusCode::NO_CONTENT => {

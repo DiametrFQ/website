@@ -21,20 +21,48 @@
   border: 1px solid var(--border);
   background-color: var(--secondary);
   color: var(--secondary-foreground);
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
   margin-top: 10px;
 }
 
 .contactButton:hover {
   background-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 .contactDetails {
-  margin-top: 15px;
+  margin-top: 20px;
   padding: 15px;
   background-color: var(--muted);
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
+
+.contactLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.contactLink:hover {
+  color: var(--primary);
+}
+
+.contactLink svg {
+  width: 20px;
+  height: 20px;
+}
+.dark .contactLink svg {
+  color: var(--primary-foreground);
+}
+
 
 .contentWrapper {
   display: flex;
@@ -68,6 +96,48 @@
   text-decoration: underline;
 }
 
+/* Стили для карточек */
+.card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
+.dark .card:hover {
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.05);
+}
+
+
+.skillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.skillTag {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.skillTag:hover {
+    background-color: var(--accent);
+    transform: scale(1.05);
+}
+
 .statsImages {
   display: flex;
   flex-direction: column;
@@ -84,28 +154,16 @@
   height: auto;
 }
 
-.connect {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
+/* Стили для анимации */
+.animatedSection {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
-.socialLinks {
-  display: flex;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.socialIcon {
-  height: 40px;
-  width: 40px;
-  object-fit: contain;
-  filter: grayscale(1);
-  transition: filter 0.2s;
-}
-
-.socialIcon:hover {
-  filter: grayscale(0);
+.animatedSection.isVisible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @media (max-width: 768px) {

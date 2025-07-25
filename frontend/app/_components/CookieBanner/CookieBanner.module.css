@@ -1,0 +1,48 @@
+.banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  /* Свойства background-color, color, border-top удалены */
+}
+
+/* Правило для .dark .banner больше не нужно, его можно удалить */
+
+.text {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.button {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  cursor: pointer;
+  font-weight: 500;
+  transition: filter 0.2s ease-in-out;
+}
+
+.button:hover {
+  filter: brightness(0.95);
+}
+
+.dark .button:hover {
+    filter: brightness(1.1);
+}
+
+@media (max-width: 768px) {
+  .banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}

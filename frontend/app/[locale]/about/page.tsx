@@ -1,66 +1,123 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import styles from './page.module.css';
 
+const useIntersectionObserver = (options: IntersectionObserverInit) => {
+  const [elements, setElements] = useState<HTMLElement[]>([]);
+  const [entries, setEntries] = useState<IntersectionObserverEntry[]>([]);
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    if (elements.length) {
+      observer.current = new IntersectionObserver((ioEntries) => {
+        setEntries(ioEntries);
+      }, options);
+
+      elements.forEach(element => observer.current?.observe(element));
+    }
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
+  }, [elements, options]);
+
+  return [observer.current, setElements, entries] as const;
+};
+
+
 export default function ResumePage() {
+  const t = useTranslations('AboutPage');
   const [showContact, setShowContact] = useState(false);
+  const skillList: string[] = t.raw('skills.list');
+  
+  const [observer, setElements, entries] = useIntersectionObserver({
+    threshold: 0.2,
+    root: null
+  });
+
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll(`.${styles.animatedSection}`));
+    setElements(sections as HTMLElement[]);
+  }, [setElements]);
+
+  useEffect(() => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add(styles.isVisible);
+        observer?.unobserve(entry.target);
+      }
+    });
+  }, [entries, observer]);
 
   return (
     <div className={styles.container}> 
-      <header className={styles.header}>
-        <h1>Хохлов Дмитрий</h1>
-        <p>FullStack Developer (TypeScript, Rust)</p>
+      <header className={`${styles.header} ${styles.animatedSection}`}>
+        <h1>{t('name')}</h1>
+        <p>{t('role')}</p>
         <button onClick={() => setShowContact(!showContact)} className={styles.contactButton}>
-          {showContact ? 'Скрыть контакты' : 'Показать контакты'}
+          {showContact ? t('hideContact') : t('showContact')}
         </button>
         {showContact && (
           <div className={styles.contactDetails}>
-            <p>Телефон: +7 (932) 477-0975</p>
-            <p>Email: hohlov.03@inbox.ru</p>
-            <p>Telegram: @diametrfq</p>
+            <a href="tel:+79324770975" className={styles.contactLink}>
+              <span className="material-symbols-outlined">call</span>
+              {t('contact.phone')}
+            </a>
+            <a href="mailto:hohlov.03@inbox.ru" className={styles.contactLink}>
+               <span className="material-symbols-outlined">email</span>
+              {t('contact.email')}
+            </a>
+            <a href="https://t.me/diametrfq" target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
+              {t('contact.telegram')}
+            </a>
           </div>
         )}
       </header>
 
       <div className={styles.contentWrapper}>
         <main className={styles.mainContent}>
-          <section>
-            <h2>Обо мне</h2>
+          <section className={`${styles.card} ${styles.animatedSection}`}>
+            <h2>{t('about.title')}</h2>
+            <p>{t('about.paragraph1')}</p>
+            <p>{t('about.paragraph2')}</p>
+          </section>
+
+          <section className={`${styles.card} ${styles.animatedSection}`}>
+            <h2>{t('experience.title')}</h2>
+            <p><strong>{t('experience.job1.title')}</strong> – {t('experience.job1.company')}</p>
+            <p>{t('experience.job1.description')}</p>
+          </section>
+
+          <section className={`${styles.card} ${styles.animatedSection}`}>
+            <h2>{t('education.title')}</h2>
+            <p><strong>{t('education.university.name')}</strong> ({t('education.university.year')}) – {t('education.university.faculty')}, {t('education.university.specialty')}</p>
+          </section>
+
+          <section className={`${styles.card} ${styles.animatedSection}`}>
+            <h2>{t('skills.title')}</h2>
+            <div className={styles.skillsContainer}>
+              {skillList.map(skill => (
+                <span key={skill} className={styles.skillTag}>{skill}</span>
+              ))}
+            </div>
+          </section>
+
+          <section className={`${styles.card} ${styles.animatedSection}`}>
+            <h2>{t('projects.title')}</h2>
             <p>
-              Я опытный FullStack разработчик с более чем четырехлетним опытом в создании
-              эффективных веб-приложений. Мои навыки охватывают весь цикл разработки, от концепции и дизайна до реализации и поддержки.
+              {t.rich('projects.description', {
+                githubLink: (chunks) => <Link href="https://github.com/DiametrFQ" target="_blank" className={styles.link}>{chunks}</Link>
+              })}
             </p>
-            <p>
-              Активно следую за последними тенденциями веб-разработки, увлечен созданием чистого, эффективного и масштабируемого кода.
-            </p>
-          </section>
-
-          <section>
-            <h2>Опыт работы</h2>
-            <p><strong>Junior FullStack Developer</strong> – Cyberia (апрель 2024 - настоящее время)</p>
-            <p>Дорабатываю разные штуки.</p>
-          </section>
-
-          <section>
-            <h2>Образование</h2>
-            <p><strong>РТУ МИРЭА</strong> (2025) – Институт кибербезопасности и цифровых технологий, Информационные системы и технологии</p>
-          </section>
-
-          <section>
-            <h2>Навыки</h2>
-            <p>TypeScript, JavaScript, React, Git, Node.js, HTML5, CSS3, SOLID, Redux, ООП, SCSS, BEM</p>
-          </section>
-
-          <section>
-            <h2>Проекты</h2>
-            <p>Все мои проекты вы можете оценить на <Link href="https://github.com/DiametrFQ" target="_blank" className={styles.link}>GitHub</Link>.</p>
           </section>
         </main>
         
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${styles.animatedSection}`}>
           <div className={styles.statsImages}>
             <Image src="https://www.codewars.com/users/DiametrFQ/badges/small" width={300} height={54} alt='Codewars stats' unoptimized/>
             <Image src="https://streak-stats.demolab.com?user=DiametrFQ&theme=github-dark-blue&border_radius=6&card_width=300&type=png" width={300} height={150} alt="GitHub Streak" unoptimized/>

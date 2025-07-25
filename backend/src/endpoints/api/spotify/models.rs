@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct NowPlayingResponse {
     pub item: Option<Item>,
     pub is_playing: bool,
+    pub device: Option<Device>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -33,6 +34,12 @@ pub struct Image {
 pub struct ExternalUrls {
     pub spotify: String,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Device {
+    pub volume_percent: Option<u32>,
+}
+
 
 #[derive(Debug, Deserialize)]
 pub struct TokenResponse {

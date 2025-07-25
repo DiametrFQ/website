@@ -1,37 +1,68 @@
 {
     "SidebarNavigation": {
-        "home":{
-            "title": "Home"
-        },
-        "about":{
-            "title": "About me"
-        },
-        "portfolio":{
-            "title": "Portfolio"
-        },
-        "contact":{
-            "title": "Contact"
-        },
-        "telegram":{
-            "title": "Telegram"
-        }
+        "home": { "title": "Home" },
+        "about": { "title": "About me" },
+        "portfolio": { "title": "Portfolio" },
+        "contact": { "title": "Contact" },
+        "telegram": { "title": "Telegram" }
     },
     "ContactPage": {
       "title": "Get in Touch",
       "subtitle": "Here is where you can find me.",
       "logoNames": {
-            "github": "GitHub",
-            "linkedin": "LinkedIn",
-            "email": "Email",
-            "workEmail": "Work Email",
-            "telegram": "Telegram",
-            "steam": "Steam",
-            "discord": "Discord"
+            "github": "GitHub", "linkedin": "LinkedIn", "email": "Email",
+            "workEmail": "Work Email", "telegram": "Telegram",
+            "steam": "Steam", "discord": "Discord"
+        }
+    },
+    "AboutPage": {
+        "name": "Dmitry Khokhlov",
+        "role": "FullStack Developer (TypeScript, Rust)",
+        "showContact": "Show Contacts",
+        "hideContact": "Hide Contacts",
+        "contact": {
+            "phone": "+7 (932) 477-0975",
+            "email": "hohlov.03@inbox.ru",
+            "telegram": "@diametrfq"
+        },
+        "about": {
+            "title": "About Me",
+            "paragraph1": "I am an experienced FullStack developer with over four years of experience in creating effective web applications. My skills cover the entire development cycle, from concept and design to implementation and support.",
+            "paragraph2": "I actively follow the latest trends in web development and am passionate about creating clean, efficient, and scalable code."
+        },
+        "experience": {
+            "title": "Work Experience",
+            "job1": {
+                "title": "Junior FullStack Developer",
+                "company": "Cyberia (April 2024 - Present)",
+                "description": "I refine various things."
+            }
+        },
+        "education": {
+            "title": "Education",
+            "university": {
+                "name": "RTU MIREA",
+                "year": "2025",
+                "faculty": "Institute of Cybersecurity and Digital Technologies",
+                "specialty": "Information Systems and Technologies"
+            }
+        },
+        "skills": {
+            "title": "Skills",
+            "list": ["TypeScript", "JavaScript", "React", "Git", "Node.js", "HTML5", "CSS3", "SOLID", "Redux", "OOP", "SCSS", "BEM"]
+        },
+        "projects": {
+            "title": "Projects",
+            "description": "You can check out all my projects on <githubLink>GitHub</githubLink>."
         }
     },
     "Metadata": {
         "defaultTitle": "Dmitry Khokhlov — Fullstack Developer",
         "template": "Dmitry Khokhlov",
         "defaultDescription": "Portfolio of a fullstack developer Dmitry Khokhlov. Specializing in React, Next.js, and TypeScript. Open to job opportunities."
+    },
+    "CookieBanner": {
+      "message": "This website uses cookies to enhance your experience. By continuing to browse, you agree to our use of cookies.",
+      "acceptButton": "Accept"
     }
 }

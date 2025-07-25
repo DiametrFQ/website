@@ -1,37 +1,68 @@
 {
     "SidebarNavigation": {
-        "home":{
-            "title": "Главная"
-        },
-        "about":{
-            "title": "Обо мне"
-        },
-        "portfolio":{
-            "title": "Портфолио"
-        },
-        "contact":{
-            "title": "Контакты"
-        },
-        "telegram":{
-            "title": "Telegram"
-        }
+        "home": { "title": "Главная" },
+        "about": { "title": "Обо мне" },
+        "portfolio": { "title": "Портфолио" },
+        "contact": { "title": "Контакты" },
+        "telegram": { "title": "Telegram" }
     },
     "ContactPage": {
       "title": "Свяжитесь со мной",
       "subtitle": "Вот где вы можете меня найти.",
       "logoNames": {
-        "github": "GitHub",
-        "linkedin": "LinkedIn",
-        "email": "Почта",
-        "workEmail": "Рабочая почта",
-        "telegram": "Телеграм",
-        "steam": "Steam",
-        "discord": "Discord"
+        "github": "GitHub", "linkedin": "LinkedIn", "email": "Почта",
+        "workEmail": "Рабочая почта", "telegram": "Телеграм",
+        "steam": "Steam", "discord": "Discord"
       }
+    },
+    "AboutPage": {
+        "name": "Хохлов Дмитрий",
+        "role": "FullStack Developer (TypeScript, Rust)",
+        "showContact": "Показать контакты",
+        "hideContact": "Скрыть контакты",
+        "contact": {
+            "phone": "+7 (932) 477-0975",
+            "email": "hohlov.03@inbox.ru",
+            "telegram": "@diametrfq"
+        },
+        "about": {
+            "title": "Обо мне",
+            "paragraph1": "Я опытный FullStack разработчик с более чем четырехлетним опытом в создании эффективных веб-приложений. Мои навыки охватывают весь цикл разработки, от концепции и дизайна до реализации и поддержки.",
+            "paragraph2": "Активно следую за последними тенденциями веб-разработки, увлечен созданием чистого, эффективного и масштабируемого кода."
+        },
+        "experience": {
+            "title": "Опыт работы",
+            "job1": {
+                "title": "Junior FullStack Developer",
+                "company": "Cyberia (апрель 2024 - настоящее время)",
+                "description": "Дорабатываю разные штуки."
+            }
+        },
+        "education": {
+            "title": "Образование",
+            "university": {
+                "name": "РТУ МИРЭА",
+                "year": "2025",
+                "faculty": "Институт кибербезопасности и цифровых технологий",
+                "specialty": "Информационные системы и технологии"
+            }
+        },
+        "skills": {
+            "title": "Навыки",
+            "list": ["TypeScript", "JavaScript", "React", "Git", "Node.js", "HTML5", "CSS3", "SOLID", "Redux", "ООП", "SCSS", "BEM"]
+        },
+        "projects": {
+            "title": "Проекты",
+            "description": "Все мои проекты вы можете оценить на <githubLink>GitHub</githubLink>."
+        }
     },
     "Metadata": {
         "defaultTitle": "Дмитрий Хохлов — Fullstack Разработчик",
         "template": "Дмитрий Хохлов",
         "defaultDescription": "Портфолио fullstack-разработчика. Специализируюсь на React, Next.js и TypeScript. Открыт к предложениям о работе."
+    },
+    "CookieBanner": {
+      "message": "Этот сайт использует файлы cookie для улучшения вашего опыта. Продолжая просмотр, вы соглашаетесь на использование нами файлов cookie.",
+      "acceptButton": "Принять"
     }
 }
