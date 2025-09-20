@@ -1,0 +1,47 @@
+name: Build, Push, and Deploy
+
+on: 
+  push:
+    branches: [ main ]
+
+jobs:
+  build_and_push:
+    runs-on: docker
+    steps:
+      # 1. Checkout
+      - run: git clone $FORGEJO_REPO_URL repo && cd repo
+
+      # 2. Build Frontend Docker Image
+      - run: |
+          cd frontend
+          docker build -t diametrfq/website:latest .
+          docker save diametrfq/website:latest -o /tmp/frontend.tar
+
+      # 3. Build Backend Docker Image
+      - run: |
+          cd backend
+          docker build -t diametrfq/website-backend:latest .
+          docker save diametrfq/website-backend:latest -o /tmp/backend.tar
+
+      # 4. Push Images to Docker Hub
+      - run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker load --input /tmp/frontend.tar
+          docker push diametrfq/website:latest
+          docker load --input /tmp/backend.tar
+          docker push diametrfq/website-backend:latest
+
+      # 5. Deploy to Server
+      - run: |
+          scp -r ./docker-compose.yml ./configs ./nginx.prod.conf $HOSTING_NAME@$HOSTING_SERVER:/myPath
+          ssh $HOSTING_NAME@$HOSTING_SERVER "
+            cd /myPath
+            export GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+            export SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID
+            export SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET
+            export SPOTIFY_REFRESH_TOKEN=$SPOTIFY_REFRESH_TOKEN
+            echo '$DOCKER_PASSWORD' | docker login -u '$DOCKER_USERNAME' --password-stdin
+            docker-compose pull
+            docker-compose up -d --force-recreate --remove-orphans
+            docker system prune -af
+          "
