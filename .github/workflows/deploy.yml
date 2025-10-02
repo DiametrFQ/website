@@ -114,22 +114,31 @@ jobs:
     needs: [push_images]
     steps:
       - uses: actions/checkout@v4
+
+      # ИЗМЕНЕНИЕ 1: Обновлена версия action и исправлен формат source
       - name: Transfer Files to Server
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@master # Используем последнюю версию
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./configs,./nginx.prod.conf"
+          source: | # Каждый источник с новой строки
+            ./docker-compose.yml
+            ./configs
+            ./nginx.prod.conf
           target: "/myPath"
+          
       - name: Deploy to Server
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@master # Также обновим эту версию
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
+            # ИЗМЕНЕНИЕ 2: Гарантируем, что директория существует
+            mkdir -p /myPath
             cd /myPath
+
             export GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             export SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
             export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
