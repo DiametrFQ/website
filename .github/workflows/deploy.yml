@@ -114,6 +114,13 @@ jobs:
     needs: [push_images]
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Debug file structure
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing all files and directories:"
+          ls -R
+
       - name: Transfer Files to Server
         uses: appleboy/scp-action@master
         with:
