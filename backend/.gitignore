@@ -1,2 +1,12 @@
-target
+# dependencies
+/node_modules
+/dist
+
+# env
 .env
+
+# logs
+npm-debug.log*
+
+# misc
+.DS_Store
