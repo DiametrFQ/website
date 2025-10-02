@@ -114,22 +114,19 @@ jobs:
     needs: [push_images]
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Debug file structure
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing all files and directories:"
-          ls -R
 
+      # ----- НОВЫЕ ШАГИ -----
+      - name: Create deployment archive
+        run: tar -czvf deploy.tar.gz docker-compose.yml configs
+
+      # ----- ИЗМЕНЕННЫЙ ШАГ -----
       - name: Transfer Files to Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: |
-            ./docker-compose.yml
-            ./configs
+          source: "deploy.tar.gz" # Передаем только один файл
           target: "/myPath"
           
       - name: Deploy to Server
@@ -141,6 +138,11 @@ jobs:
           script: |
             mkdir -p /myPath
             cd /myPath
+
+            echo "Unpacking deployment files..."
+            tar -xzvf deploy.tar.gz
+            
+            rm deploy.tar.gz
 
             export GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             export SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
