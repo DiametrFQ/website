@@ -6,7 +6,10 @@ use crate::endpoints::app_state::AppState;
 
 #[get("")]
 pub async fn get_telegram_posts_handler(state: web::Data<AppState>) -> HttpResponse {
-    let result = services::fetch_telegram_posts(state.rss_fetcher.as_ref()).await;
+    let result = services::fetch_telegram_posts(
+        state.rss_fetcher.as_ref(),
+        &state.telegram_cache // <-- Добавили этот аргумент
+    ).await;
 
     match result {
         Ok(posts) => match serde_json::to_string(&posts) {

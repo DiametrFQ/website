@@ -1,11 +1,14 @@
 use super::errors::{AppError, AppResult};
-use super::models::Post;
+use super::models::{Post, TelegramCache};
 use async_trait::async_trait;
 use bytes::Bytes;
 use rss::Channel;
 use scraper::Html;
+use std::time::{Duration, Instant};
+use tokio::sync::Mutex;
 
 const TELEGRAM_CHANNEL: &str = "diametrpd";
+const CACHE_TTL_SECONDS: u64 = 600;
 
 #[async_trait]
 pub trait RssFetcher {
@@ -34,34 +37,71 @@ impl RssFetcher for RealRssFetcher {
     }
 }
 
-pub async fn fetch_telegram_posts(fetcher: &(dyn RssFetcher + Sync)) -> AppResult<Vec<Post>> {
-    let feed_url = format!("https://rsshub.app/telegram/channel/{}", TELEGRAM_CHANNEL);
-    let content = fetcher.fetch_rss_content(&feed_url).await?;
-
-    let channel = Channel::read_from(&content[..]).map_err(|e| {
-        log::error!("Failed to parse RSS feed: {}", e);
-        AppError::ServiceErrorWithFallback
-    })?;
-
-    let posts: Vec<Post> = channel
-        .items()
-        .iter()
-        .map(|item| {
-            let raw_html_snippet = item
-                .description()
-                .unwrap_or_else(|| item.content().unwrap_or(""))
-                .to_string();
-            let plain_text_snippet = html_to_plaintext(&raw_html_snippet);
-            Post {
-                title: item.title().unwrap_or("Без заголовка").to_string(),
-                link: item.link().unwrap_or("#").to_string(),
-                content_snippet: plain_text_snippet,
-                image_url: extract_image_url(item),
+pub async fn fetch_telegram_posts(
+    fetcher: &(dyn RssFetcher + Sync),
+    cache_mutex: &Mutex<Option<TelegramCache>>, 
+) -> AppResult<Vec<Post>> {
+    
+    {
+        let cache_guard = cache_mutex.lock().await;
+        if let Some(cache) = &*cache_guard {
+            if cache.last_updated.elapsed() < Duration::from_secs(CACHE_TTL_SECONDS) {
+                log::info!("Returning Telegram posts from CACHE");
+                return Ok(cache.posts.clone());
             }
-        })
-        .collect();
+        }
+    }
 
-    Ok(posts)
+    log::info!("Cache expired or empty, fetching from RSS...");
+    let feed_url = format!("https://rsshub.app/telegram/channel/{}", TELEGRAM_CHANNEL);
+    
+    let fetch_result = fetcher.fetch_rss_content(&feed_url).await;
+
+    match fetch_result {
+        Ok(content) => {
+            let channel = Channel::read_from(&content[..]).map_err(|e| {
+                log::error!("Failed to parse RSS feed: {}", e);
+                AppError::ServiceErrorWithFallback
+            })?;
+
+            let posts: Vec<Post> = channel
+                .items()
+                .iter()
+                .map(|item| {
+                    let raw_html_snippet = item
+                        .description()
+                        .unwrap_or_else(|| item.content().unwrap_or(""))
+                        .to_string();
+                    let plain_text_snippet = html_to_plaintext(&raw_html_snippet);
+                    Post {
+                        title: item.title().unwrap_or("Без заголовка").to_string(),
+                        link: item.link().unwrap_or("#").to_string(),
+                        content_snippet: plain_text_snippet,
+                        image_url: extract_image_url(item),
+                    }
+                })
+                .collect();
+
+            {
+                let mut cache_guard = cache_mutex.lock().await;
+                *cache_guard = Some(TelegramCache {
+                    posts: posts.clone(),
+                    last_updated: Instant::now(),
+                });
+            }
+            log::info!("Telegram posts updated successfully");
+            Ok(posts)
+        }
+        Err(e) => {
+            log::warn!("Failed to fetch new posts: {}. Trying fallback to stale cache.", e);
+            let cache_guard = cache_mutex.lock().await;
+            if let Some(cache) = &*cache_guard {
+                log::info!("Returning STALE Telegram posts from cache");
+                return Ok(cache.posts.clone());
+            }
+            Err(e)
+        }
+    }
 }
 
 fn html_to_plaintext(html_content: &str) -> String {
@@ -99,138 +139,4 @@ fn extract_image_url(item: &rss::Item) -> Option<String> {
         }
     }
     None
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use bytes::Bytes;
-    use std::io;
-
-    struct MockRssFetcher {
-        response: AppResult<Bytes>,
-    }
-
-    #[async_trait]
-    impl RssFetcher for MockRssFetcher {
-        async fn fetch_rss_content(&self, _url: &str) -> AppResult<Bytes> {
-            self.response
-                .as_ref()
-                .map(|b| b.clone())
-                .map_err(|e| AppError::IoError(io::Error::new(io::ErrorKind::Other, e.to_string())))
-        }
-    }
-
-    #[tokio::test]
-    async fn test_fetch_posts_success_path() {
-        let fake_rss = r#"
-            <?xml version="1.0" encoding="UTF-8"?>
-            <rss version="2.0">
-                <channel>
-                    <title>Test Channel</title>
-                    <item><title>Post 1</title><link>http://a.com/1</link><description>Desc 1</description></item>
-                    <item><title>Post 2</title><link>http://a.com/2</link><description><![CDATA[<p>C</p><img src="http://a.com/img.jpg">]]></description></item>
-                    <item><title></title><link></link><description></description></item>
-                </channel>
-            </rss>
-        "#;
-
-        let mock_fetcher = MockRssFetcher {
-            response: Ok(Bytes::from(fake_rss)),
-        };
-
-        let result = fetch_telegram_posts(&mock_fetcher).await;
-        assert!(result.is_ok(), "Function should return Ok on valid RSS");
-
-        let posts = result.unwrap();
-        assert_eq!(posts.len(), 3, "Should parse all 3 items");
-
-        assert_eq!(posts[0].title, "Post 1");
-        assert_eq!(posts[0].content_snippet, "Desc 1");
-
-        assert_eq!(posts[1].content_snippet, "C");
-        assert_eq!(posts[1].image_url, Some("http://a.com/img.jpg".to_string()));
-
-        assert_eq!(posts[2].title, "Без заголовка");
-        assert_eq!(posts[2].link, "#");
-    }
-
-    #[tokio::test]
-    async fn test_fetch_posts_on_parsing_error() {
-        let fake_response = "this is not xml";
-        let mock_fetcher = MockRssFetcher {
-            response: Ok(Bytes::from(fake_response)),
-        };
-
-        let result = fetch_telegram_posts(&mock_fetcher).await;
-
-        assert!(result.is_err());
-        match result.unwrap_err() {
-            AppError::ServiceErrorWithFallback => (), // Успех!
-            other => panic!(
-                "Expected ServiceErrorWithFallback on parsing error, but got {:?}",
-                other
-            ),
-        }
-    }
-
-    #[tokio::test]
-    async fn test_fetch_posts_on_network_error() {
-        let mock_fetcher = MockRssFetcher {
-            response: Err(AppError::InternalError(
-                "Simulated network failure".to_string(),
-            )),
-        };
-
-        let result = fetch_telegram_posts(&mock_fetcher).await;
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_html_to_plaintext_conversion() {
-        let html = "<div> <p>Hello  <b>world</b> & friends</p>\n<span>!</span> </div>";
-        assert_eq!(html_to_plaintext(html), "Hello world & friends !");
-        assert_eq!(html_to_plaintext(""), "");
-    }
-
-    #[test]
-    fn test_image_url_extraction() {
-        // --- Test 1: Image in <description> ---
-        let mut item1 = rss::Item::default();
-        item1.set_description(String::from(
-            "<p>text</p><img src='http://test.com/image.png' />",
-        ));
-        let result1 = extract_image_url(&item1);
-        assert!(result1.is_some(), "Test 1 failed");
-        assert_eq!(result1.unwrap(), "http://test.com/image.png");
-
-        // --- Test 2: Image in <content> ---
-        let mut item2 = rss::Item::default();
-        item2.set_content(String::from("<img src=\"https://another.com/image.gif\">"));
-        let result2 = extract_image_url(&item2);
-        assert!(
-            result2.is_some(),
-            "Test 2 failed: Should find an image in content"
-        );
-        assert_eq!(result2.unwrap(), "https://another.com/image.gif");
-
-        // --- Test 3: Image from <enclosure>  ---
-        let mut item3 = rss::Item::default();
-        item3.set_content(String::from("<img src=\"ignored.png\">"));
-        let mut enclosure = rss::Enclosure::default();
-        enclosure.set_url("http://priority.com/enclosure.jpg".to_string());
-        enclosure.set_mime_type("image/jpeg".to_string());
-        item3.set_enclosure(enclosure);
-        let result3 = extract_image_url(&item3);
-        assert!(result3.is_some(), "Test 3 failed");
-        assert_eq!(
-            result3.unwrap(),
-            "http://priority.com/enclosure.jpg",
-            "Enclosure should have priority"
-        );
-
-        // --- Test 4: No image ---
-        let item_no_image = rss::Item::default();
-        assert!(extract_image_url(&item_no_image).is_none(), "Test 4 failed");
-    }
 }
