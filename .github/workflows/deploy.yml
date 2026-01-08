@@ -7,7 +7,7 @@ on:
 jobs:
   build_frontend_image:
     name: 1. Build Frontend Image
-    runs-on: docker
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
