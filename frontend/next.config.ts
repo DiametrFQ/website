@@ -2,8 +2,11 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
-const nextConfig = {
-  reactStrictMode: true
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  output: 'standalone'
 };
 
 export default withNextIntl(nextConfig);
