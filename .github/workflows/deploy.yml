@@ -104,7 +104,7 @@ jobs:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./configs,./nginx.prod.conf"
+          source: "./docker-compose.yml,./configs"
           target: "/myPath"
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
