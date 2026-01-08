@@ -1,0 +1,23 @@
+import {getRequestConfig} from 'next-intl/server';
+import {locales} from '../types/i18n'; // Импортируем твои локали
+  console.log('await import(`../locales/${locale}.json`)', await import(`../locales/${locale}.json`));
+
+export default getRequestConfig(async ({requestLocale}) => {
+  // В документации пример статический, но у тебя роутинг [locale],
+  // поэтому нам нужно получить локаль из requestLocale.
+  let locale = await requestLocale;
+
+  // Проверяем, валидна ли локаль. Если нет — берем 'en'.
+  // @ts-ignore - чтобы TS не ругался на string vs 'en'|'ru'
+  if (!locale || !locales.includes(locale)) {
+    locale = 'en';
+  }
+
+  console.log('await import(`../locales/${locale}.json`)', await import(`../locales/${locale}.json`));
+
+  return {
+    locale,
+    // Путь к JSON файлам. Из папки i18n выходим назад (..) в locales
+    messages: (await import(`../locales/${locale}.json`)).default
+  };
+});

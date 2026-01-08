@@ -57,7 +57,9 @@
     "**/*.tsx",
     "frontend/.next/types/**/*.ts",
     "frontend/next-env.d.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "i18n/request.ts.bak"
   ],
   "exclude": [
     "node_modules"
