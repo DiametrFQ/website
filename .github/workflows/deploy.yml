@@ -5,7 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build_and_push:
+  build_frontend_image:
+    name: 1. Build Frontend Image
     runs-on: docker
     steps:
       - name: Checkout repository
