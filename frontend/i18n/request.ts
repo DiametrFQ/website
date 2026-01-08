@@ -5,8 +5,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     let locale = await requestLocale;
 
     // Validate that the incoming `locale` parameter is valid
-    // @ts-ignore
-    if (!locale || !locales.includes(locale)) {
+    if (!locale || !(locales as readonly string[]).includes(locale)) {
         locale = 'ru'; // Default fallback
     }
 
