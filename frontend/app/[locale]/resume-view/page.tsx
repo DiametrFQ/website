@@ -2,9 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { ToolHighlighter } from '../about/components/ToolHighlighter';
-import { Mail, Phone, Send, MapPin, Calendar, Clock } from 'lucide-react';
+import { Mail, Phone, Send, MapPin } from 'lucide-react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 
 interface Job {
     title: string;
