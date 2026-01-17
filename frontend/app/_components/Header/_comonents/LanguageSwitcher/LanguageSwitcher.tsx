@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { useLocale } from "next-intl"
 import { locale as LocaleType } from "@/types/i18n";
-import { usePathname, useRouter } from "next/navigation"; 
+import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from 'react';
 import { locales } from '@/types/i18n';
 
@@ -15,14 +15,14 @@ export function LanguageSwitcher() {
 
   const switchLocale = (newLocale: LocaleType) => {
     if (newLocale === currentLocale || isPending) return;
-    
+
     startTransition(() => {
       let pathnameWithoutLocale = currentPathname;
       if (currentPathname.startsWith(`/${currentLocale}`)) {
         pathnameWithoutLocale = currentPathname.substring(`/${currentLocale}`.length);
         if (pathnameWithoutLocale === '') pathnameWithoutLocale = '/';
       }
-      
+
       router.replace(`/${newLocale}${pathnameWithoutLocale === '/' && newLocale !== 'en' ? '' : pathnameWithoutLocale}`);
     });
   }
@@ -33,12 +33,13 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <Button 
-      className="rounded-full" 
+    <Button
+      className="rounded-full"
       onClick={() => switchLocale(getNextLocale())}
-      variant="outline" 
+      variant="outline"
       size="icon"
       disabled={isPending}
+      aria-label={`Switch language to ${currentLocale.toUpperCase() === 'EN' ? 'Russian' : 'English'}`}
     >
       {currentLocale.toUpperCase() === 'EN' ? 'RU' : 'EN'}
     </Button>

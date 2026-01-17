@@ -10,7 +10,7 @@ import StoreProvider from "@/store/StoreProvider";
 import { locales as appLocales } from '@/types/i18n';
 import Header from '../_components/Header/Header';
 import NowPlaying from "../_components/NowPlaying/NowPlaying";
-import AppSidebar from '../_components/Sidebar/Sidebar'; 
+import AppSidebar from '../_components/Sidebar/Sidebar';
 import '../_styles/globals.css';
 import "@fontsource/material-symbols-outlined";
 
@@ -36,44 +36,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export function generateStaticParams() {
-  return appLocales.map((locale) => ({locale}));
+  return appLocales.map((locale) => ({ locale }));
 }
 
-export default async function LocaleLayout({ children, params }: Props) { 
+export default async function LocaleLayout({ children, params }: Props) {
   // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: НЕ деструктурируем в сигнатуре.
   const { locale } = await params;
-  
+
   unstable_setRequestLocale(locale);
   const messages = await getMessages();
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-        />
-        <Script
-          id="yandex-metrika"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();
-              for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}\\n
-              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})\\n
-              (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");\\n
-              ym(102356747, "init", {\\n
-                    clickmap:true,\\n
-                    trackLinks:true,\\n
-                    accurateTrackBounce:true,\\n
-                    webvisor:true\\n
-              });\\n
-            `
-          }}
-        />
+        {/* Preconnect to external domains for faster loading */}
+        <link rel="preconnect" href="https://mc.yandex.ru" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.spotify.com" />
+
+        {/* Material Symbols font is now loaded via @fontsource package (line 15) */}
+        {/* Removed blocking stylesheet for better performance */}
       </head>
-      <GoogleAnalytics gaId="G-7VQWEH45FM"/>
+      <GoogleAnalytics gaId="G-7VQWEH45FM" />
       <body>
         <StoreProvider>
           <ThemeProvider
@@ -95,6 +82,28 @@ export default async function LocaleLayout({ children, params }: Props) {
             </NextIntlClientProvider>
           </ThemeProvider>
         </StoreProvider>
+
+        {/* Analytics and metadata scripts at end of body for non-blocking load */}
+        <Script
+          id="yandex-metrika"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+              m[i].l=1*new Date();
+              for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+              (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+              ym(102356747, "init", {
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true,
+                    webvisor:true
+              });
+            `
+          }}
+        />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -113,11 +122,12 @@ export default async function LocaleLayout({ children, params }: Props) {
               "worksFor": {
                 "@type": "Organization",
                 "name": "Cyberia"
-              }  
+              }
             })
           }}
         />
-        <NowPlaying /> 
+
+        <NowPlaying />
       </body>
     </html>
   );
