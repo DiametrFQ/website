@@ -1,30 +1,26 @@
-# backend/Dockerfile.prod
+# backend/Dockerfile
 
-# --- Этап 1: Сборка ---
-FROM rust:1-bookworm as builder
+# --- Этап 1: Установка зависимостей ---
+FROM node:22-alpine AS deps
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Устанавливаем зависимости для компиляции
-RUN apt-get update && apt-get install -y build-essential pkg-config libssl-dev
-
-# Кешируем зависимости
-COPY ./Cargo.toml ./Cargo.lock ./
-RUN mkdir src && \
-    echo "fn main() {}" > src/main.rs && \
-    cargo build --release
-
-# Копируем исходный код и собираем проект
-COPY ./src ./src
-RUN touch src/lib.rs && cargo build --release
-
-# --- Этап 2: Финальный образ ---
-FROM debian:bookworm-slim
+# --- Этап 2: Сборка ---
+FROM node:22-alpine AS builder
 WORKDIR /app
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
 
-COPY --from=builder /app/target/release/backend .
-RUN chmod +x ./backend
+# --- Этап 3: Финальный образ ---
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
 
-ENV RUST_LOG="info"
+# Копируем только необходимые для запуска артефакты
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 8080
-CMD ["./backend"]
+CMD ["node", "dist/main"]

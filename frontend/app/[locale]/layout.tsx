@@ -16,7 +16,7 @@ import "@fontsource/material-symbols-outlined";
 
 type Props = {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -40,11 +40,10 @@ export function generateStaticParams() {
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
-  // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: НЕ деструктурируем в сигнатуре.
   const { locale } = await params;
 
   unstable_setRequestLocale(locale);
-  const messages = await getMessages();
+  const messages = await getMessages({ locale });
 
   return (
     <html lang={locale} suppressHydrationWarning>

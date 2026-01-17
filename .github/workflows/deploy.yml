@@ -1,14 +1,8 @@
 name: Build, Push, and Deploy
 
-on:
-  pull_request:
-    branches:
-      - main
-
-env:
-  DOCKER_BUILD_RECORD_RETENTION_DAYS: 1
-  BUILDX_CACHE_MAX_SIZE: 5GB
-  ACTIONS_CACHE_KEY_PREFIX: v1
+on: 
+  push:
+    branches: [ main ]
 
 jobs:
   build_frontend_image:
@@ -92,9 +86,7 @@ jobs:
       - name: Load and Push Frontend Image
         run: |
           docker load --input /tmp/frontend.tar
-          docker push diametrfq/website:latest &
-      - name: Load and Push Backend Image
-        run: |
+          docker push diametrfq/website:latest
           docker load --input /tmp/backend.tar
           docker push diametrfq/website-backend:latest &
       - name: Wait for all pushes to complete
@@ -106,14 +98,19 @@ jobs:
     needs: [push_images]
     steps:
       - uses: actions/checkout@v4
+      - name: Debug workspace
+        run: |
+          ls -la
+          ls -R configs || echo "configs NOT FOUND"
       - name: Transfer Files to Server
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOSTING_SERVER }}
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
-          source: "./docker-compose.yml,./configs,./nginx.prod.conf"
-          target: "/myPath"
+          source: "docker-compose.yml,configs"
+          target: "~/website"
+          debug: true
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -121,7 +118,7 @@ jobs:
           username: ${{ secrets.HOSTING_NAME }}
           password: ${{ secrets.HOSTING_PASSWORD }}
           script: |
-            cd /myPath
+            cd ~/website
             export GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             export SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
             export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
@@ -131,10 +128,6 @@ jobs:
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             
             echo "Pulling latest images..."
-            docker-compose pull
-            
-            echo "Starting services..."
-            docker-compose up -d --force-recreate --remove-orphans
-            
-            echo "Cleaning up old images..."
             docker system prune -af
+            docker-compose pull
+            docker-compose up -d --force-recreate --remove-orphans

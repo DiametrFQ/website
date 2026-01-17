@@ -14,7 +14,6 @@ services:
     image: diametrfq/website-backend:latest
     container_name: website_backend
     environment:
-      - RUST_LOG=${RUST_LOG_LEVEL:-debug,info}
       - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.2.12",
-    "@next/third-parties": "^15.3.3",
+    "@next/third-parties": "15.1.11",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.5",
@@ -23,11 +23,11 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.474.0",
-    "next": "^15.3.3",
+    "next": "15.1.11",
     "next-intl": "^3.26.3",
     "next-themes": "^0.4.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-fast-marquee": "^1.6.5",
     "react-redux": "^9.2.0",
     "rss-parser": "^3.13.0",
@@ -43,7 +43,7 @@
     "@types/react-dom": "^19",
     "cross-env": "^7.0.3",
     "eslint": "^9",
-    "eslint-config-next": "15.1.6",
+    "eslint-config-next": "15.1.11",
     "postcss": "^8",
     "tailwindcss": "^3.4.1"
   }

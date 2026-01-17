@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
 
-const withNextIntl = createNextIntlPlugin('./app/i18n.ts');
+const withNextIntl = createNextIntlPlugin();
+
+import type { NextConfig } from 'next';
 
 // Bundle analyzer
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
