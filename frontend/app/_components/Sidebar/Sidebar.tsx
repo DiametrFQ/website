@@ -65,7 +65,7 @@ export default function AppSidebar() {
                             href={`/${locale}${item.url}`}
                             className={
                               pathname === `/${locale}${item.url}` ||
-                              (item.url === '/' && pathname === `/${locale}`)
+                                (item.url === '/' && pathname === `/${locale}`)
                                 ? 'bg-accent text-accent-foreground'
                                 : ''
                             }

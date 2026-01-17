@@ -12,12 +12,12 @@
   "dependencies": {
     "@fontsource/material-symbols-outlined": "^5.2.12",
     "@next/third-parties": "15.1.11",
-    "@radix-ui/react-avatar": "^1.1.2",
-    "@radix-ui/react-collapsible": "^1.1.2",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.5",
-    "@radix-ui/react-dropdown-menu": "^2.1.5",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-separator": "^1.1.1",
-    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.1.7",
     "@reduxjs/toolkit": "^2.5.1",
     "class-variance-authority": "^0.7.1",
@@ -45,6 +45,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.11",
     "postcss": "^8",
+    "puppeteer": "^24.35.0",
     "tailwindcss": "^3.4.1"
   }
 }

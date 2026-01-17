@@ -12,7 +12,6 @@ import Header from '../_components/Header/Header';
 import NowPlaying from "../_components/NowPlaying/NowPlaying";
 import AppSidebar from '../_components/Sidebar/Sidebar';
 import '../_styles/globals.css';
-import "@fontsource/material-symbols-outlined";
 
 type Props = {
   children: React.ReactNode;
@@ -56,8 +55,11 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://api.spotify.com" />
 
-        {/* Material Symbols font is now loaded via @fontsource package (line 15) */}
-        {/* Removed blocking stylesheet for better performance */}
+        {/* Material Symbols font with optimized loading */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+        />
       </head>
       <GoogleAnalytics gaId="G-7VQWEH45FM" />
       <body>

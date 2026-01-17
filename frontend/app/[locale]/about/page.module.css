@@ -1,118 +1,70 @@
 .container {
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
   line-height: 1.6;
   color: var(--foreground);
-  padding: 20px;
+  padding: 40px 20px;
 }
 
 .header {
   text-align: center;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 30px;
+  padding: 40px 0;
+  margin-bottom: 40px;
 }
 
-.contactButton {
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
-  transition: background-color 0.2s;
-  margin-top: 10px;
+.header h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
-.contactButton:hover {
-  background-color: var(--accent);
+.header p {
+  font-size: 1.5rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  margin-bottom: 2rem;
 }
 
 .contactDetails {
-  margin-top: 15px;
-  padding: 15px;
+  margin-top: 2rem;
+  padding: 1.5rem;
   background-color: var(--muted);
-  border-radius: 8px;
+  border-radius: 12px;
+  display: inline-block;
+  text-align: left;
 }
 
 .contentWrapper {
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 30px;
-}
-
-.mainContent {
-  flex: 2;
-}
-
-.sidebar {
-  flex: 1;
-  max-width: 300px;
+  display: block;
 }
 
 .mainContent section {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .mainContent h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  border-bottom: 2px solid var(--primary);
-  padding-bottom: 5px;
-  margin-bottom: 15px;
+  font-size: 2rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .link {
   color: var(--primary);
   text-decoration: underline;
-}
-
-.statsImages {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 15px;
-  background-color: var(--card);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-}
-
-.statsImages img {
-  border-radius: 6px;
-  max-width: 100%;
-  height: auto;
-}
-
-.connect {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-
-.socialLinks {
-  display: flex;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.socialIcon {
-  height: 40px;
-  width: 40px;
-  object-fit: contain;
-  filter: grayscale(1);
-  transition: filter 0.2s;
-}
-
-.socialIcon:hover {
-  filter: grayscale(0);
+  text-underline-offset: 4px;
 }
 
 @media (max-width: 768px) {
-  .contentWrapper {
-    flex-direction: column;
+  .header h1 {
+    font-size: 2.5rem;
   }
-  .sidebar {
-    max-width: 100%;
+
+  .header p {
+    font-size: 1.25rem;
   }
 }
