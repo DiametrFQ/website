@@ -1,25 +1,25 @@
 {
     "SidebarNavigation": {
-        "home":{
+        "home": {
             "title": "Home"
         },
-        "about":{
+        "about": {
             "title": "About me"
         },
-        "portfolio":{
+        "portfolio": {
             "title": "Portfolio"
         },
-        "contact":{
+        "contact": {
             "title": "Contact"
         },
-        "telegram":{
+        "telegram": {
             "title": "Telegram"
         }
     },
     "ContactPage": {
-      "title": "Get in Touch",
-      "subtitle": "Here is where you can find me.",
-      "logoNames": {
+        "title": "Get in Touch",
+        "subtitle": "Here is where you can find me.",
+        "logoNames": {
             "github": "GitHub",
             "linkedin": "LinkedIn",
             "email": "Email",
@@ -33,5 +33,86 @@
         "defaultTitle": "Dmitry Khokhlov — Fullstack Developer",
         "template": "Dmitry Khokhlov",
         "defaultDescription": "Portfolio of a fullstack developer Dmitry Khokhlov. Specializing in React, Next.js, and TypeScript. Open to job opportunities."
+    },
+    "AboutPage": {
+        "title": "About Me",
+        "name": "Dmitry Khokhlov",
+        "role": "FullStack Developer (TypeScript, Rust)",
+        "downloadResume": "Download Resume",
+        "showContacts": "Show Contacts",
+        "hideContacts": "Hide Contacts",
+        "contacts": {
+            "phone": "Phone",
+            "email": "Email",
+            "telegram": "Telegram"
+        },
+        "summary": [
+            "Experienced Backend Developer focusing on creating web applications and microservice systems based on Node.js, NestJS, and TypeScript. Confidently designing and implementing scalable services using PostgreSQL, TypeORM, Docker, Redis, and CI/CD systems.",
+            "I apply Clean Architecture, SOLID, DDD, OOP principles, and modular architecture. Experience includes designing and maintaining RESTful and GraphQL APIs, integrating services, setting up automated build and deploy processes, and optimizing performance and reliability.",
+            "Well-versed in the JavaScript/TypeScript ecosystem, proficient with monitoring tools (Grafana, Prometheus), and DevOps practices. Participated in creating and maintaining microservice architecture from scratch, including containerization and service interaction.",
+            "Constantly developing professionally, implementing best practices, participating in code reviews and architecture design. Ready to bring value to the team by creating modern, reliable, and maintainable solutions."
+        ],
+        "experienceTitle": "Work Experience",
+        "educationTitle": "Education",
+        "skillsTitle": "Skills",
+        "projectsTitle": "Projects",
+        "projectsDescription": "You can check out all my projects on",
+        "education": {
+            "university": "MIREA — Russian Technological University",
+            "degree": "Bachelor, Information Systems and Technologies",
+            "year": "2025",
+            "projectTitle": "Educational Projects",
+            "projects": [
+                "Info-Defender (Thesis): Cybersecurity training application developed in TypeScript.",
+                "Tambalik (Coursework): Turn-based strategy game with election mechanics (TypeScript/React).",
+                "BarbershopAPI: Backend implementation with PostgreSQL and PLpgSQL.",
+                "ShortLink: CI/CD pipeline setup for URL shortener service.",
+                "Ants (Coursework): Ant colony simulation exploring OOP principles in C#.",
+                "MobileProjects: Mobile app development with Kotlin."
+            ]
+        },
+        "jobs": [
+            {
+                "title": "Fullstack Developer",
+                "company": "Cyberia Labs",
+                "location": "Moscow",
+                "period": "April 2024 — December 2025",
+                "duration": "1 year 9 months",
+                "description": [
+                    "Developed and implemented Markdown to DOCX conversion algorithms, improving document generation quality and reporting automation.",
+                    "Designed and created microservices with mission-critical functionality; configured deployment via Docker Compose, optimized container builds, and implemented monitoring using Grafana and Prometheus.",
+                    "Extended functionality of existing libraries and services on NestJS, TypeORM, and PostgreSQL, ensuring solution scalability and resilience.",
+                    "Optimized the core of the Meilisearch search engine (in Rust), increasing performance by 15% through improved indexing and search algorithms.",
+                    "Modified Node.js libraries to meet business requirements, ensuring tighter integration with internal infrastructure.",
+                    "Mentored developers: taught NestJS, TypeORM, Rust, and internal Meilisearch mechanisms; participated in project migration from Laravel (PHP) to NestJS, conducted code reviews, and implemented best practices and a unified architectural style.",
+                    "Developed and maintained frontend components using MUI and shadcn, implementing interaction with backend APIs.",
+                    "Collaborated with analysts in shaping and clarifying technical requirements, helping adapt tasks to real architecture and product capabilities.",
+                    "Developed services from scratch and integrated them into the general microservice network interacting via REST API.",
+                    "Developed and supported frontend on both pure React and Next.js, creating modular and reusable interfaces.",
+                    "Used Material UI and shadcn/ui for building UI components, configured themes, extended base components for project requirements.",
+                    "Implemented complex client interfaces: dynamic forms, tables, filters, carousels, dashboards, and interactive pages.",
+                    "Optimized client state management using Redux Toolkit, RTK Query, and modern data management approaches in React.",
+                    "Configured Next.js application architecture, including routing, server components, SSR/SSG, and backend API integration."
+                ]
+            },
+            {
+                "title": "Node.js Developer",
+                "company": "Mobile TeleSystems (MTS)",
+                "location": "Russia",
+                "period": "October 2022 — April 2024",
+                "duration": "1 year 7 months",
+                "description": [
+                    "Participated in designing and implementing APIs and web interfaces; extended and improved existing modules, enhancing system scalability and stability.",
+                    "Identified and fixed defects in production environment, optimized service operation ensuring SLA compliance and stable application availability.",
+                    "Developed and supported server logic on JavaScript/TypeScript and NestJS; worked with PostgreSQL and MongoDB, optimized queries and data storage schemas.",
+                    "Configured microservice and web server interaction, improved performance and reliability between system components.",
+                    "Analyzed technical incidents, conducted diagnostics, and developed sustainable solutions preventing recurrence.",
+                    "Worked with Git, npm/yarn, and team CI processes; participated in infrastructure improvement and release process optimization.",
+                    "Collaborated with analysts and operations engineers, helping clarify technical requirements and adapt them to product architecture.",
+                    "Used Docker and Kubernetes, participated in service deployment, environment testing, and integration with monitoring systems."
+                ]
+            }
+        ],
+        "skills": "TypeScript, JavaScript, SQL, Git, SOLID, OOP, MVC, Node.js, Docker, CI/CD, REST API, PostgreSQL, Express.js, Jest, Redis, NestJS, WebSocket, Rust, Kubernetes, Docker Compose, Grafana, RabbitMQ, MUI, MongoDB, SaaS, NextJS, React, Redux"
     }
 }
